@@ -1,14 +1,9 @@
 package ImageTools;
 
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 
 public class ReadImage {
 
