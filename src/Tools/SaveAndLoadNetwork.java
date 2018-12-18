@@ -10,7 +10,7 @@ public class SaveAndLoadNetwork  {
 
     private static final String dir = "SavedNetworks/";
 
-    public static void save(Layer layer,ArrayList<Double[][]> weights,String name){
+    public static void save(Layer[] layer,ArrayList<Double[][]> weights,String name){
 
         File file = new File("SavedNetworks");
         if(!file.exists()){
@@ -71,19 +71,19 @@ public class SaveAndLoadNetwork  {
 
     private static class NetworkHolder implements Serializable{
 
-        private Layer layer;
+        private Layer[] layer;
         private ArrayList<Double[][]> weights;
 
-        public NetworkHolder(Layer layer, ArrayList<Double[][]> weights) {
+        public NetworkHolder(Layer[] layer, ArrayList<Double[][]> weights) {
             this.layer = layer;
             this.weights = weights;
         }
 
-        public Layer getLayer() {
+        public Layer[] getLayer() {
             return layer;
         }
 
-        public void setLayer(Layer layer) {
+        public void setLayer(Layer[] layer) {
             this.layer = layer;
         }
 

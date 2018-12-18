@@ -26,6 +26,7 @@ public class Cnn {
 
         init();
         train();
+        saveNetwork("Neural-Net");
 
     }
     private void train(){
@@ -85,7 +86,9 @@ public class Cnn {
         }
         weights.add(tmp);
     }
-
+    private void saveNetwork(String name){
+        Tools.SaveAndLoadNetwork.save(layers,weights,name);
+    }
     public static void main(String[] args) {
         new Cnn();
     }
