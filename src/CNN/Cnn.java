@@ -1,7 +1,10 @@
 package CNN;
 
+import ImageTools.ReadImage;
 import Tools.MyMath;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Cnn {
@@ -10,20 +13,56 @@ public class Cnn {
     int numberOfOutputs = 0;
     int numberOfHiddenLayers = 3;
 
+    int numberOfItereations = 1000;
+
     int picW = 900;
     int picH = 900;
 
     Layer[] layers;
     ArrayList<Double[][]> weights = new ArrayList<>();
+    ReadImage trainMaterial1;
 
     public Cnn(){
-        // läs in en bild
-        // träna
-        // reptera till bilder är slut
 
-        // spara
+        init();
+        train();
+
+    }
+    private void train(){
+        BufferedImage bi ;
+        int count = 0;
+        while ((bi = trainMaterial1.getNextImage()) != null || count < numberOfItereations ){
+            decodeImageToInputLayer(bi);
+            forwardProp();
+            backwardProp();
+        }
+    }
+
+    private void decodeImageToInputLayer(BufferedImage im){
+        Perceptron[] perceptrons = layers[0].getPerceptrons();
+        for(int y =0 ; y<picW;y++){
+            for(int x = 0; x<picH;x++){
+                Color color = new Color(im.getRGB(x,y));
+                int colorSum = (color.getRed() +color.getBlue() +color.getGreen())/3;
+                perceptrons[y*picW+x].setOutput(colorSum);
+            }
+        }
+    }
+    private void forwardProp(){
+        for(int i = 1; i<layers.length;i++){
+            Perceptron[] prev = layers[i-1].getPerceptrons();
+            for(Perceptron perceptron: layers[i].getPerceptrons()){
+                perceptron.calculateInput(weights.get(i-1),prev);
+            }
+        }
+    }
+    private void backwardProp(){
+
     }
     private void init(){
+
+        trainMaterial1 = new ReadImage("bilder");
+
         int hiddenSize = (picH*picW+numberOfOutputs)/2 ;
         layers = new Layer[numberOfHiddenLayers+2];
 

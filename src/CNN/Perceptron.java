@@ -2,9 +2,10 @@ package CNN;
 
 import ActivationFunctions.ActivationFunction;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Perceptron {
+public class Perceptron implements Serializable {
     private ActivationFunction activationFuntion;
     private int id; // id should always start at 0
     private double bias = 0.01;
@@ -12,10 +13,10 @@ public class Perceptron {
     private double output = 0;
 
 
-    public void calculateInput(double[][] input,Perceptron[] prev){
+    public void calculateInput(Double[][] input,Perceptron[] prev){
         double sum = 0;
         for(int i = 0 ; i<input[0].length;i++){
-            sum += input[id][i]*prev[i].getOutput();
+            sum += input[id][i].doubleValue()*prev[i].getOutput();
         }
         double res = activationFuntion.calculateActivation(sum+bias);
         output = res > threshold ? res : 0;

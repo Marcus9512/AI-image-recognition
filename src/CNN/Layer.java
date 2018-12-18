@@ -2,7 +2,9 @@ package CNN;
 
 import Tools.MyMath;
 
-public class Layer {
+import java.io.Serializable;
+
+public class Layer implements Serializable {
     private Perceptron[] perceptrons;
     private int id;
 
@@ -11,6 +13,7 @@ public class Layer {
         perceptrons = new Perceptron[numberOfPerceptrons];
         for(int i = 0; i< numberOfPerceptrons; i++){
             perceptrons[i] = new Perceptron();
+            perceptrons[i].setId(i);
         }
     }
     public void randomizePerceptron(){
