@@ -1,10 +1,13 @@
 package ImageTools;
 
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class ReadImage {
@@ -16,10 +19,15 @@ public class ReadImage {
         createImageList(path);
     }
     private void createImageList(String path){
-        File folder = new File(path);
+        ClassLoader classLoader = getClass().getClassLoader();
+        File folder = new File(classLoader.getResource(path).getFile());
+
         imagePathList = folder.listFiles();
+        if(imagePathList == null){
+            System.err.println("Could not find files in this path "+path);
+        }
     }
-    private BufferedImage getNextImage(){
+    public BufferedImage getNextImage(){
         File tmp;
         if(currentImage < imagePathList.length) {
             tmp = imagePathList[currentImage];
