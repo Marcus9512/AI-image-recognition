@@ -2,6 +2,7 @@ package CNN;
 
 import ActivationFunctions.ActivationFunction;
 import ActivationFunctions.ReLu;
+import ImageTools.Dataset;
 import ImageTools.ReadImage;
 import Tools.MyMath;
 
@@ -25,6 +26,7 @@ public class Cnn {
     Layer[] layers;
     ArrayList<Double[][]> weights = new ArrayList<>();
     ReadImage trainMaterial1;
+    ReadImage trainMaterial2;
 
     ArrayList<Double[][]> gradientWeights = new ArrayList<>();
     ArrayList<double[]> gradientBias = new ArrayList<>();
@@ -38,13 +40,63 @@ public class Cnn {
 
     }
     private void train(){
-        BufferedImage bi ;
-        int epochs = 0;
-        while ((bi = trainMaterial1.getNextImage()) != null || epochs < maxEpochs){
-            decodeImageToInputLayer(bi);
-            forwardProp();
-            backwardProp(0);
+        Dataset ds ;
+        double correct = 0;
+        double notCorrect = 0;
+        double pro = 0;
+        for(int epochs = 0; epochs < maxEpochs; epochs++ ) {
+            while ((ds = getNext()) != null) {
+                decodeImageToInputLayer(ds.getImage());
+                forwardProp();
+                if(readSolution(ds.getSolution())){
+                    correct++;
+                }else {
+                    notCorrect++;
+                }
+                backwardProp(ds.getSolution());
+                System.out.println("Iteration complete");
+            }
+
+            pro = correct/(notCorrect+correct);
+
+            System.out.println("After epoch "+ epochs+", %correct answears: "+pro);
+
+            notCorrect = 0;
+            correct = 0;
+            if(pro > 90)
+                break;
+
+            trainMaterial1.reset();
+            trainMaterial2.reset();
         }
+    }
+    private boolean readSolution(int solution){
+        int pick = 0;
+        double brightest = Double.MIN_VALUE;
+        Perceptron[] perceptrons = layers[layers.length-1].getPerceptrons();
+        for(int i = 0 ; i< perceptrons.length; i++ ){
+            if(perceptrons[i].getOutput() > brightest){
+                pick = i;
+                brightest = perceptrons[i].getOutput();
+            }
+        }
+        if(pick == solution)
+            return true;
+        return false;
+    }
+    private Dataset getNext(){
+        if(trainMaterial1.hasNext() && trainMaterial2.hasNext()){
+            int tmp = MyMath.rand(-5,5);
+            if(tmp >0)
+                return new Dataset(trainMaterial1.getNextImage(),0);
+            else
+                return new Dataset(trainMaterial2.getNextImage(),1);
+        }else if(trainMaterial1.hasNext()){
+            return new Dataset(trainMaterial1.getNextImage(),0);
+        }else if(trainMaterial2.hasNext()){
+            return new Dataset(trainMaterial2.getNextImage(),1);
+        }
+        return null;
     }
 
     private void decodeImageToInputLayer(BufferedImage im){
@@ -100,6 +152,7 @@ public class Cnn {
                     weights.get(i)[w][j] += correctionWeight;
 
                     gradientCost.get(i)[j] += MyMath.Dcda(perceptronsInCL[j].getOutput(),gradientCost.get(i+1)[w] , z, perceptronsInCL[j].getActivationFunction(), currentWeights[w][j]);
+                    gradientBias.get(i)[j] += MyMath.Dcdb(perceptronsInCL[j].getOutput(),gradientCost.get(i+1)[w] , z, perceptronsInCL[j].getActivationFunction());
 
                 }
 
@@ -109,9 +162,27 @@ public class Cnn {
 
 
     }
+    private void applyTrainging(){
+        for(int start = 0 ; start < weights.size(); start++){
+            Double[][] cor = gradientWeights.get(start);
+            Double[][] curr = weights.get(start);
+            for(int i = 0; i< curr.length;i++){
+                for(int j = 0; j <curr[0].length;j++){
+                    curr[i][j]+= cor[i][j];
+                }
+            }
+        }
+        for(int i = 0; i< layers.length;i++){
+            Perceptron[] perceptron = layers[i].getPerceptrons();
+            for(int j = 0; j< perceptron.length;i++){
+                perceptron[j].setBias(perceptron[j].getBias()+ gradientBias.get(i)[j]);
+            }
+        }
+    }
     private void init(){
 
         trainMaterial1 = new ReadImage("bilder");
+        trainMaterial2 = new ReadImage("bilder2");
 
         int hiddenSize = (picH*picW+numberOfOutputs)/2 ;
         layers = new Layer[numberOfHiddenLayers+2];

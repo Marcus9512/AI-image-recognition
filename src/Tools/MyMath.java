@@ -20,6 +20,9 @@ public class MyMath {
     public static double Dcda(double a,double y, double z, ActivationFunction activationFunction, Double weight){
         return dcda(a,y) * dadz(z,activationFunction) * dzda(weight);
     }
+    public static double Dcdb(double a,double y, double z, ActivationFunction activationFunction){
+        return dcda(a,y) * dadz(z,activationFunction);
+    }
     private static double dcda(double a, double y){
         return 2*(a-y);
     }

@@ -38,5 +38,11 @@ public class ReadImage {
         }
         return null;
     }
+    public void reset(){
+        currentImage = 0;
+    }
+    public boolean hasNext(){
+        return currentImage < imagePathList.length ? true : false;
+    }
 
 }
