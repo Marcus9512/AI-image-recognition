@@ -15,7 +15,7 @@ public class Cnn {
     final ActivationFunction relu = new ReLu();
 
     int numberOfChannels = 3;
-    int numberOfOutputs = 0;
+    int numberOfOutputs = 2;
     int numberOfHiddenLayers = 3;
 
     int maxEpochs = 1000;
@@ -45,6 +45,9 @@ public class Cnn {
         double notCorrect = 0;
         double pro = 0;
         for(int epochs = 0; epochs < maxEpochs; epochs++ ) {
+
+            double time = System.nanoTime();
+
             while ((ds = getNext()) != null) {
                 decodeImageToInputLayer(ds.getImage());
                 forwardProp();
@@ -55,11 +58,12 @@ public class Cnn {
                 }
                 backwardProp(ds.getSolution());
                 System.out.println("Iteration complete");
+                applyTrainging();
             }
-
+            double stop = System.nanoTime();
             pro = correct/(notCorrect+correct);
 
-            System.out.println("After epoch "+ epochs+", %correct answears: "+pro);
+            System.out.println("After epoch "+ epochs+", %correct answears: "+pro+" it took "+(stop-time)/1000000000.0 +"s");
 
             notCorrect = 0;
             correct = 0;
