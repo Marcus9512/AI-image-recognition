@@ -1,5 +1,7 @@
 package CNN;
 
+import ActivationFunctions.ActivationFunction;
+import ActivationFunctions.ReLu;
 import ImageTools.ReadImage;
 import Tools.MyMath;
 
@@ -8,12 +10,13 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Cnn {
+    final ActivationFunction relu = new ReLu();
 
     int numberOfChannels = 3;
     int numberOfOutputs = 0;
     int numberOfHiddenLayers = 3;
 
-    int numberOfItereations = 1000;
+    int maxEpochs = 1000;
 
     int picW = 900;
     int picH = 900;
@@ -31,8 +34,8 @@ public class Cnn {
     }
     private void train(){
         BufferedImage bi ;
-        int count = 0;
-        while ((bi = trainMaterial1.getNextImage()) != null || count < numberOfItereations ){
+        int epochs = 0;
+        while ((bi = trainMaterial1.getNextImage()) != null || epochs < maxEpochs){
             decodeImageToInputLayer(bi);
             forwardProp();
             backwardProp();
@@ -44,6 +47,7 @@ public class Cnn {
         for(int y =0 ; y<picW;y++){
             for(int x = 0; x<picH;x++){
                 Color color = new Color(im.getRGB(x,y));
+                //TODO implementera 3 lager rgb
                 int colorSum = (color.getRed() +color.getBlue() +color.getGreen())/3;
                 perceptrons[y*picW+x].setOutput(colorSum);
             }
@@ -57,7 +61,11 @@ public class Cnn {
             }
         }
     }
-    private void backwardProp(){
+    private void backwardProp(int solutionIndex){
+        //för varje nod utom input:
+        //cost = (faktiskt värde - önskat värde)^2
+
+
 
     }
     private void init(){
@@ -67,13 +75,14 @@ public class Cnn {
         int hiddenSize = (picH*picW+numberOfOutputs)/2 ;
         layers = new Layer[numberOfHiddenLayers+2];
 
-        layers[0] = new Layer(0,picH*picW);
-        layers[1] = new Layer(1,hiddenSize);
-        layers[2] = new Layer(2,hiddenSize);
-        layers[3] = new Layer(3,hiddenSize);
-        layers[4] = new Layer(4,numberOfOutputs);
+        layers[0] = new Layer(0,picH*picW, relu);
+        layers[1] = new Layer(1,hiddenSize, relu);
+        layers[2] = new Layer(2,hiddenSize, relu);
+        layers[3] = new Layer(3,hiddenSize, relu);
+        layers[4] = new Layer(4,numberOfOutputs, relu);
 
         for(int i = 0 ; i< layers.length-1;i++){
+            //create weight matrix between each layer
             createWeightMatrix(layers[i].getPerceptrons().length,layers[i+1].getPerceptrons().length);
         }
     }

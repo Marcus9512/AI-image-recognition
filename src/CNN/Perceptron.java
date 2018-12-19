@@ -53,4 +53,10 @@ public class Perceptron implements Serializable {
     public void setOutput(double output) {
         this.output = output;
     }
+    public ActivationFunction getActivationFunction(){
+        return activationFuntion;
+    }
+    public void setActivationFunction(ActivationFunction activationFuntion){
+        this.activationFuntion = activationFuntion;
+    }
 }
