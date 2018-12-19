@@ -20,8 +20,8 @@ public class Cnn {
 
     int maxEpochs = 1000;
 
-    int picW = 900;
-    int picH = 900;
+    int picW = 50;
+    int picH = 50;
 
     Layer[] layers;
     ArrayList<Double[][]> weights = new ArrayList<>();
@@ -185,11 +185,16 @@ public class Cnn {
     }
     private void init(){
 
-        trainMaterial1 = new ReadImage("bilder");
-        trainMaterial2 = new ReadImage("bilder2");
+        trainMaterial1 = new ReadImage("1");
+        trainMaterial2 = new ReadImage("2");
 
         int hiddenSize = (picH*picW+numberOfOutputs)/2 ;
         layers = new Layer[numberOfHiddenLayers+2];
+
+        System.out.println("number of outputs: "+ numberOfOutputs);
+        System.out.println("number of hidden layers: "+ numberOfHiddenLayers);
+        System.out.println("hiddensize: "+ hiddenSize);
+
 
         layers[0] = new Layer(0,picH*picW, relu);
         layers[1] = new Layer(1,hiddenSize, relu);
@@ -209,22 +214,21 @@ public class Cnn {
         gradientCost.add(new double[hiddenSize]);
         gradientCost.add(new double[numberOfOutputs]);
 
+
         for(int i = 0 ; i< layers.length-1;i++){
             //create weight matrix between each layer
             createWeightMatrix(layers[i].getPerceptrons().length,layers[i+1].getPerceptrons().length,weights,false);
             createWeightMatrix(layers[i].getPerceptrons().length,layers[i+1].getPerceptrons().length,gradientWeights,true);
         }
-
-
     }
     private void createWeightMatrix(int x,int y,ArrayList<Double[][]> addto ,boolean onlyZeros){
-        Double[][] tmp = new Double[x][y];
+        Double[][] tmp = new Double[y][x];
         for(int i = 0; i< x ; i++){
             for(int j = 0; j < y ; j++){
                 if(!onlyZeros)
-                    tmp[i][j] = new Double(MyMath.rand(-10,10));
+                    tmp[j][i] = new Double(MyMath.rand(-10,10));
                 else
-                    tmp[i][j] = 0.0;
+                    tmp[j][i] = 0.0;
             }
         }
         addto.add(tmp);
