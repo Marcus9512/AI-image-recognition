@@ -20,7 +20,7 @@ public class Layer implements Serializable {
     }
     public void randomizePerceptron(){
         for(int i = 0; i< perceptrons.length; i++){
-            perceptrons[i].setThreshold(MyMath.rand(-10,10));
+            perceptrons[i].setThreshold(0.5);
         }
     }
     public Perceptron[] getPerceptrons(){

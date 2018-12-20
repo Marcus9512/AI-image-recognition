@@ -19,7 +19,9 @@ public class Perceptron implements Serializable {
             sum += input[id][i].doubleValue()*prev[i].getOutput();
         }
         double res= activationFuntion.calculateActivation(sum+bias);
-        output = res > threshold ? res : 0;
+
+        output = res > threshold ? 1 : 0;
+        //System.out.println(output);
     }
 
     public int getId() {
