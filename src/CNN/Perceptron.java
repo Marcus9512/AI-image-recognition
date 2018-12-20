@@ -15,12 +15,12 @@ public class Perceptron implements Serializable {
 
     public void calculateInput(Double[][] input,Perceptron[] prev){
         double sum = 0;
-        for(int i = 0 ; i<input[0].length;i++){
-            sum += input[id][i].doubleValue()*prev[i].getOutput();
+        for(int i = 0 ; i<input[id].length;i++){
+            sum += input[id][i]*prev[i].getOutput();
         }
-        double res= activationFuntion.calculateActivation(sum+bias);
+        output = activationFuntion.calculateActivation(sum+bias);
 
-        output = res > threshold ? 1 : 0;
+       // output = res > threshold ? 1 : 0;
         //System.out.println(output);
     }
 

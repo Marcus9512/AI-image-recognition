@@ -111,7 +111,7 @@ public class Cnn {
             for(int x = 0; x<picH;x++){
                 Color color = new Color(im.getRGB(x,y));
                 //TODO implementera 3 lager rgb
-                double colorSum = ((double)(color.getRed() +color.getBlue() +color.getGreen()))/(3.0*255.0);
+                double colorSum = ((double)( +color.getBlue() ))/(255.0);
                 perceptrons[y*picW+x].setOutput(colorSum);
             }
         }
@@ -123,7 +123,7 @@ public class Cnn {
                 perceptron.calculateInput(weights.get(i-1),prev);
             }
         }
-        printMatrix();
+       // printMatrix();
        // printWheights();
     }
     private void backwardProp(int solutionIndex){
@@ -255,7 +255,7 @@ public class Cnn {
             Double[][] curr = weights.get(start);
             for(int i = 0; i< curr.length;i++){
                 for(int j = 0; j <curr[0].length;j++){
-               //     System.out.println(cor[i][j]);
+                    System.out.println(cor[i][j]);
                     curr[i][j]+= cor[i][j];
                 }
             }
