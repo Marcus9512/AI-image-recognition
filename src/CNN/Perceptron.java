@@ -9,7 +9,7 @@ public class Perceptron implements Serializable {
     private ActivationFunction activationFuntion;
     private int id; // id should always start at 0
     private double bias = 0.01;
-    private double threshold;
+    private double threshold = 0;
     private double output = 0;
 
 
@@ -18,8 +18,8 @@ public class Perceptron implements Serializable {
         for(int i = 0 ; i<input[0].length;i++){
             sum += input[id][i].doubleValue()*prev[i].getOutput();
         }
-        output= activationFuntion.calculateActivation(sum+bias);
-      //  output = res > threshold ? res : 0;
+        double res= activationFuntion.calculateActivation(sum+bias);
+        output = res > threshold ? res : 0;
     }
 
     public int getId() {

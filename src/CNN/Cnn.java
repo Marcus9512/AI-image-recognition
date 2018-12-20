@@ -21,7 +21,7 @@ public class Cnn {
     int maxEpochs = 100;
 
     int picW = 50;
-    int picH = 50;
+    int picH =  50;
 
     Layer[] layers;
     ArrayList<Double[][]> weights = new ArrayList<>();
@@ -30,7 +30,7 @@ public class Cnn {
 
     ArrayList<Double[][]> gradientWeights = new ArrayList<>();
     ArrayList<double[]> gradientBias = new ArrayList<>();
-    ArrayList<double[]> gradientCost = new ArrayList<>();
+    ArrayList<double[]> gradientError = new ArrayList<>();
 
     public Cnn(){
 
@@ -122,11 +122,14 @@ public class Cnn {
             }
         }
     }
-    private void backwardProp(double solutionIndex){
+    private void backwardProp(int solutionIndex){
         //för varje nod utom input:
         //cost = (faktiskt värde - önskat värde)^2
 
-        Perceptron[] lastLayer = layers[layers.length-1].getPerceptrons();
+        calculateOutputLayer(solutionIndex);
+        calculateRemaingingHiddenLayers();
+
+       /* Perceptron[] lastLayer = layers[layers.length-1].getPerceptrons();
         double[] cost = gradientCost.get(layers.length-1);
 
         for(int i = 0; i<cost.length;i++){
@@ -135,8 +138,9 @@ public class Cnn {
             }else{
                 cost[i] = (lastLayer[i].getOutput()) * (lastLayer[i].getOutput());
             }
-        }
+        }*/
 
+        /*
         for(int i = layers.length-2; i>=0 ; i--){
             Perceptron[] perceptronsInCL = layers[i].getPerceptrons();
             Perceptron[] perceptronsInPL = layers[i+1].getPerceptrons();
@@ -152,7 +156,7 @@ public class Cnn {
 
                     double correctionWeight = 0;
                 /*    System.out.println(" current: i "+i+" current w "+w +" current j "+j);
-                    System.out.println("range of w: "+(currentWeights.length-1)+" range of j: "+(perceptronsInCL.length-1)+" range of gradientCost(i+1): "+gradientCost.get(i+1).length+" range of perceptronsInCL "+perceptronsInCL.length+" range of perceptronsInPL "+perceptronsInPL.length);*/
+                    System.out.println("range of w: "+(currentWeights.length-1)+" range of j: "+(perceptronsInCL.length-1)+" range of gradientCost(i+1): "+gradientCost.get(i+1).length+" range of perceptronsInCL "+perceptronsInCL.length+" range of perceptronsInPL "+perceptronsInPL.length);
                     correctionWeight = MyMath.Dcdw(perceptronsInCL[j].getOutput(),gradientCost.get(i+1)[w] , z, perceptronsInCL[j].getActivationFunction(), perceptronsInPL[w]);
                     gradientWeights.get(i)[w][j] += correctionWeight;
 
@@ -164,10 +168,83 @@ public class Cnn {
 
 
             }
-        }
+        }*/
 
 
     }
+    private void calculateOutputLayer(int solution){
+        Perceptron[] lminusOne = layers[layers.length-2].getPerceptrons();
+        Perceptron[] l = layers[layers.length-1].getPerceptrons();
+
+
+        //calculate solution
+        double[] y = new double[l.length];
+        for(int i = 0 ; i<y.length;i++){
+            if(i == solution)
+                y[i] = 1.0;
+            else
+                y[i] = 0.0;
+        }
+
+        for(int j = 0 ; j< l.length;j++){
+            double z = 0;
+            // calculate z
+            for(int k = 0 ; k< lminusOne.length;k++){
+                z += weights.get(layers.length-2)[j][k] * lminusOne[k].getOutput() + l[j].getBias();
+            }
+
+            //calculate gradient w and bias
+            double error =  (l[j].getOutput() - y[j]) * l[j].getActivationFunction().getDerivative(z);
+            for (int k = 0; k < lminusOne.length; k++) {
+                gradientWeights.get(layers.length - 2)[j][k] = lminusOne[k].getOutput() * error;
+            }
+            gradientBias.get(gradientBias.size() - 1)[j] = error;
+            gradientError.get(gradientError.size()-1)[j] = error;
+
+        }
+        /*double error = 0;
+        for(int j = 0 ; j<l.length;j++){
+            error += errorInLayer[j];
+        }
+        for(int j = 0 ; j< l.length;j++) {
+            for (int k = 0; k < lminusOne.length; k++) {
+                gradientWeights.get(layers.length - 2)[j][k] = lminusOne[k].getOutput() * error;
+            }
+            gradientBias.get(gradientBias.size() - 1)[j] = error;
+        }
+        gradientError[gradientError.length-1] = error;*/
+
+
+    }
+
+    private void calculateRemaingingHiddenLayers(){
+        for(int l = layers.length-2; l>0;l--) {
+            Perceptron[] cl = layers[l].getPerceptrons();
+            Perceptron[] lplusOne = layers[l+1].getPerceptrons();
+            Perceptron[] lminusOne = layers[l-1].getPerceptrons();
+
+            for (int j = 0; j < cl.length; j++) {
+                double z = 0;
+                // calculate z
+                for (int k = 0; k < lminusOne.length; k++) {
+                    z += weights.get(layers.length - 2)[j][k] * lminusOne[k].getOutput() + cl[j].getBias();
+                }
+
+                for (int k = 0; k < lplusOne.length; k++) {
+                    gradientError.get(l)[j]+= gradientWeights.get(l)[j][k] * gradientError.get(l+1)[k] ;
+                }
+                gradientError.get(l)[j]*= cl[j].getActivationFunction().getDerivative(z);
+
+                //calculate gradient w and bias
+                for (int k = 0; k < lminusOne.length; k++) {
+                    gradientWeights.get(layers.length - 2)[j][k] = lminusOne[k].getOutput() * gradientError.get(l)[j];
+                }
+                gradientBias.get(gradientBias.size() - 1)[j] = gradientError.get(l)[j];
+
+            }
+        }
+    }
+
     private void applyTrainging(){
         for(int start = 0 ; start < weights.size(); start++){
             Double[][] cor = gradientWeights.get(start);
@@ -204,9 +281,9 @@ public class Cnn {
         layers[3] = new Layer(3,hiddenSize, relu);
         layers[4] = new Layer(4,numberOfOutputs, relu);
 
-      /*  for(Layer layer : layers){
+        for(Layer layer : layers){
             layer.randomizePerceptron();
-        }*/
+        }
 
         gradientBias.add(0,new double[picH*picW]);
         gradientBias.add(1,new double[hiddenSize]);
@@ -214,11 +291,12 @@ public class Cnn {
         gradientBias.add(3,new double[hiddenSize]);
         gradientBias.add(4,new double[numberOfOutputs]);
 
-        gradientCost.add(0,new double[picH*picW]);
-        gradientCost.add(1,new double[hiddenSize]);
-        gradientCost.add(2,new double[hiddenSize]);
-        gradientCost.add(3,new double[hiddenSize]);
-        gradientCost.add(4,new double[numberOfOutputs]);
+        gradientError.add(0,new double[picH*picW]);
+        gradientError.add(1,new double[hiddenSize]);
+        gradientError.add(2,new double[hiddenSize]);
+        gradientError.add(3,new double[hiddenSize]);
+        gradientError.add(4,new double[numberOfOutputs]);
+
 
 
         for(int i = 0 ; i< layers.length-1;i++){
