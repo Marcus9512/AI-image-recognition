@@ -1,6 +1,7 @@
 package Graphics;
 
-import CNN.Cnn;
+
+import CNN.Neural_Network;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -20,7 +21,7 @@ public class NeuralNetGraphics extends JPanel {
 
     FileNameExtensionFilter filter;
     static JTextArea textArea;
-    static Cnn cnn;
+    static Neural_Network cnn;
 
 
     public NeuralNetGraphics(int x, int y){
@@ -76,9 +77,9 @@ public class NeuralNetGraphics extends JPanel {
         String input = ng.loadCNN(jFrame,ng);
 
         if(ng == null)
-            cnn = new Cnn(true,"");
+            cnn = new Neural_Network(true,"");
         else
-            cnn = new Cnn(false,input);
+            cnn = new Neural_Network(false,input);
 
 
         JPanel buttonPanel = new JPanel();
