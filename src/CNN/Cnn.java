@@ -15,13 +15,13 @@ import java.util.ArrayList;
 public class Cnn {
     final ActivationFunction relu = new ReLu();
     final ActivationFunction sigmoid = new Sigmoid();
-    final double learning_rate = 3;
+    final double learning_rate = 3.0;
 
     int numberOfChannels = 3;
     int numberOfOutputs = 10;
     int numberOfHiddenLayers = 1;
 
-    int maxEpochs = 30;
+    int maxEpochs = 200;
 
     int picW = 28;
     int picH =  28;
@@ -41,12 +41,34 @@ public class Cnn {
     String serachPath = "Numbers/";
     String testPath = "testing/";
 
-    public Cnn(){
+    public Cnn(boolean newNetwork, String path){
 
-        init();
+        if(newNetwork) {
+            init();
+        }else{
+            loadNetwork(path);
+        }
+
+    }
+
+    public void trainNetwork(){
         train();
         saveNetwork("Neural-Net");
+    }
+    public int runNetwork(BufferedImage bi){
+        decodeImageToInputLayer(bi);
+        forwardProp();
 
+        int pick = 0;
+        double brightest = Double.MIN_VALUE;
+        Perceptron[] perceptrons = layers[layers.length-1].getPerceptrons();
+        for(int i = 0 ; i< perceptrons.length; i++ ){
+            if(perceptrons[i].getOutput() > brightest){
+                pick = i;
+                brightest = perceptrons[i].getOutput();
+            }
+        }
+        return pick;
     }
     private void train(){
         Dataset ds ;
@@ -112,7 +134,7 @@ public class Cnn {
 
         }
         testMaterial.reset();
-        System.out.println("After epoch "+ epoch+", correct answears: "+c+" of "+(w+c)+" it took "+(stop-start)/1000000000.0 +"s");
+        System.out.println("After epoch "+ epoch+", correct answers: "+c+" of "+(w+c)+" it took "+(stop-start)/1000000000.0 +"s");
 
 
 
@@ -209,7 +231,6 @@ public class Cnn {
             Perceptron[] prev = layers[i-1].getPerceptrons();
             for(Perceptron perceptron: layers[i].getPerceptrons()){
                 perceptron.calculateInput(weights.get(i-1),prev);
-
             }
         }
       // printMatrix();
@@ -247,15 +268,15 @@ public class Cnn {
         }
 
         for(int j = 0 ; j< l.length;j++){
-            double z = 0;
+         /*   double z = 0;
             // calculate z
             for(int k = 0 ; k< lminusOne.length;k++){
                 z += weights.get(layers.length-2)[j][k] * lminusOne[k].getOutput();
             }
-            z +=  + l[j].getBias();
+            z +=  + l[j].getBias();*/
 
             //calculate gradient w and bias
-            double error =  (l[j].getOutput() - y[j]) * l[j].getActivationFunction().getDerivative(z);
+            double error =  (l[j].getOutput() - y[j]) * l[j].getActivationFunction().getDerivative(l[j].getZ());
             for (int k = 0; k < lminusOne.length; k++) {
                 gradientWeights.get(layers.length - 2)[j][k] = lminusOne[k].getOutput() * error;
             }
@@ -298,7 +319,8 @@ public class Cnn {
     }
 
     private void applyTrainging(double minibatch_size){
-     //   printWheights(gradientWeights);
+       // printWheights(gradientWeights);
+      //  printBias();
         for(int start = 0 ; start < weights.size(); start++){
             Double[][] cor = gradientWeights.get(start);
             Double[][] curr = weights.get(start);
@@ -390,6 +412,16 @@ public class Cnn {
             }
             System.out.println();
         }
+        System.out.println();
+    }
+    private void printBias(){
+        for(double[] doubles : gradientBias){
+            for(double d : doubles){
+                System.out.print(d+" ");
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
     private void printWheights(ArrayList<Double[][]> in){
         int i = 0;
@@ -404,11 +436,18 @@ public class Cnn {
 
             i++;
         }
+        System.out.println();
     }
     private void saveNetwork(String name){
         Tools.SaveAndLoadNetwork.save(layers,weights,name);
     }
+    private void loadNetwork(String networkName){
+        Tools.SaveAndLoadNetwork.NetworkHolder networkHolder = Tools.SaveAndLoadNetwork.load(networkName);
+        System.out.println(networkHolder);
+        layers = networkHolder.getLayer();
+        weights = networkHolder.getWeights();
+    }
     public static void main(String[] args) {
-        new Cnn();
+        new Cnn(true,"").trainNetwork();
     }
 }

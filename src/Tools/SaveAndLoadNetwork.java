@@ -3,16 +3,18 @@ package Tools;
 import CNN.Layer;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class SaveAndLoadNetwork  {
 
-    private static final String dir = "SavedNetworks/";
+    private static final String dir = "res/SavedNetworks/";
 
     public static void save(Layer[] layer,ArrayList<Double[][]> weights,String name){
 
-        File file = new File("SavedNetworks");
+        File file = new File("res/SavedNetworks");
         if(!file.exists()){
             file.mkdir();
         }
@@ -51,9 +53,12 @@ public class SaveAndLoadNetwork  {
 
     }
     public static NetworkHolder load(String name){
-        File file = new File(dir+name);
+        File file = new File(name);
+
+        System.out.println("trying to load: "+file.getPath());
         if(!file.exists())
             return null;
+
 
         FileInputStream fileInputStream = null;
         ObjectInputStream objectInputStream = null;
@@ -72,7 +77,7 @@ public class SaveAndLoadNetwork  {
     }
 
 
-    private static class NetworkHolder implements Serializable{
+    public static class NetworkHolder implements Serializable{
 
         private Layer[] layer;
         private ArrayList<Double[][]> weights;
@@ -80,6 +85,10 @@ public class SaveAndLoadNetwork  {
         public NetworkHolder(Layer[] layer, ArrayList<Double[][]> weights) {
             this.layer = layer;
             this.weights = weights;
+        }
+
+        public String toString(){
+            return "HELLLO"+Arrays.toString(layer)+"\n"+weights.toString();
         }
 
         public Layer[] getLayer() {
