@@ -15,28 +15,22 @@ import java.util.ArrayList;
 public class Cnn {
     final ActivationFunction relu = new ReLu();
     final ActivationFunction sigmoid = new Sigmoid();
+    final double learning_rate = 3;
 
     int numberOfChannels = 3;
     int numberOfOutputs = 10;
-    int numberOfHiddenLayers = 3;
+    int numberOfHiddenLayers = 1;
 
-    int maxEpochs = 1000000;
+    int maxEpochs = 30;
 
     int picW = 28;
     int picH =  28;
 
     Layer[] layers;
     ArrayList<Double[][]> weights = new ArrayList<>();
-    ReadImage trainMaterial1;
-    ReadImage trainMaterial2;
-    ReadImage trainMaterial3;
-    ReadImage trainMaterial4;
-    ReadImage trainMaterial5;
-    ReadImage trainMaterial6;
-    ReadImage trainMaterial7;
-    ReadImage trainMaterial8;
-    ReadImage trainMaterial9;
-    ReadImage trainMaterial10;
+    ReadImage trainMaterial;
+    ReadImage testMaterial;
+
 
     boolean[] done = new boolean[10];
 
@@ -45,6 +39,7 @@ public class Cnn {
     ArrayList<double[]> gradientError = new ArrayList<>();
 
     String serachPath = "Numbers/";
+    String testPath = "testing/";
 
     public Cnn(){
 
@@ -55,67 +50,75 @@ public class Cnn {
     }
     private void train(){
         Dataset ds ;
-        double correct = 0;
-        double notCorrect = 0;
+
         double pro = 0;
+        int minibatch_size = 0;
+
         for(int epochs = 0; epochs < maxEpochs; epochs++ ) {
 
             double time = System.nanoTime();
 
-            while ((ds = getNext()) != null) {
+            while ((ds = trainMaterial.getNext()) != null) {
                 decodeImageToInputLayer(ds.getImage());
-                forwardProp();
-                if(readSolution(ds.getSolution())){
-                    correct++;
-                }else {
-                    notCorrect++;
-                }
+
                 backwardProp(ds.getSolution());
-            //    System.out.println("Iteration complete");
-                applyTrainging();
-              //  printMatrix();
+
+                minibatch_size++;
+                if(minibatch_size == 10) {
+                    applyTrainging(minibatch_size);
+                    minibatch_size = 0;
+                }
+            }
+            if(minibatch_size != 0){
+                applyTrainging(minibatch_size);
+                minibatch_size = 0;
             }
             double stop = System.nanoTime();
-            pro = correct/(notCorrect+correct);
 
-            System.out.println("After epoch "+ epochs+", %correct answears: "+pro+" it took "+(stop-time)/1000000000.0 +"s");
+            readSolution(epochs,time,stop);
 
-            notCorrect = 0;
-            correct = 0;
             if(pro > 90)
                 break;
 
             for(int i = 0 ;i<done.length;i++){
                 done[i] = false;
             }
-            trainMaterial1.reset();
-            trainMaterial2.reset();
-            trainMaterial3.reset();
-            trainMaterial4.reset();
-            trainMaterial5.reset();
-            trainMaterial6.reset();
-            trainMaterial7.reset();
-            trainMaterial8.reset();
-            trainMaterial9.reset();
-            trainMaterial10.reset();
+            trainMaterial.reset();
+
         }
     }
-    private boolean readSolution(int solution){
-        int pick = 0;
-        double brightest = Double.MIN_VALUE;
-        Perceptron[] perceptrons = layers[layers.length-1].getPerceptrons();
-        for(int i = 0 ; i< perceptrons.length; i++ ){
-            if(perceptrons[i].getOutput() > brightest){
-                pick = i;
-                brightest = perceptrons[i].getOutput();
+    private void readSolution(int epoch , double start, double stop){
+        Dataset ds;
+        int c = 0;
+        int w = 0;
+        while ((ds = testMaterial.getNext()) != null){
+            decodeImageToInputLayer(ds.getImage());
+            forwardProp();
+
+            int pick = 0;
+            double brightest = Double.MIN_VALUE;
+            Perceptron[] perceptrons = layers[layers.length-1].getPerceptrons();
+            for(int i = 0 ; i< perceptrons.length; i++ ){
+                if(perceptrons[i].getOutput() > brightest){
+                    pick = i;
+                    brightest = perceptrons[i].getOutput();
+                }
             }
+            if(pick == ds.getSolution()){
+                c++;
+            }else {
+                w++;
+            }
+
         }
-        if(pick == solution)
-            return true;
-        return false;
-    }
+        testMaterial.reset();
+        System.out.println("After epoch "+ epoch+", correct answears: "+c+" of "+(w+c)+" it took "+(stop-start)/1000000000.0 +"s");
+
+
+
+    }/*
     private Dataset getNext(){
-       /* if(trainMaterial1.hasNext() && trainMaterial2.hasNext()){
+        if(trainMaterial1.hasNext() && trainMaterial2.hasNext()){
             int tmp = MyMath.rand(-5,5);
             if(tmp >0)
                 return new Dataset(trainMaterial1.getNextImage(),0);
@@ -125,7 +128,7 @@ public class Cnn {
             return new Dataset(trainMaterial1.getNextImage(),0);
         }else if(trainMaterial2.hasNext()){
             return new Dataset(trainMaterial2.getNextImage(),1);
-        }*/
+        }
        if(trainMaterial1.hasNext()){
            if(!done[0]){
                System.out.println("Dataset 0");
@@ -189,7 +192,7 @@ public class Cnn {
        }
         return null;
     }
-
+*/
     private void decodeImageToInputLayer(BufferedImage im){
         Perceptron[] perceptrons = layers[0].getPerceptrons();
         for(int y =0 ; y<picW;y++){
@@ -209,9 +212,9 @@ public class Cnn {
 
             }
         }
-       //printMatrix();
+      // printMatrix();
       //  printWheights(weights);
-    /*                try {
+     /*               try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -221,49 +224,11 @@ public class Cnn {
         //för varje nod utom input:
         //cost = (faktiskt värde - önskat värde)^2
 
+        forwardProp();
         calculateOutputLayer(solutionIndex);
         calculateRemaingingHiddenLayers();
+        resetError();
 
-       /* Perceptron[] lastLayer = layers[layers.length-1].getPerceptrons();
-        double[] cost = gradientCost.get(layers.length-1);
-
-        for(int i = 0; i<cost.length;i++){
-            if(i == solutionIndex){
-                cost[i] = (lastLayer[i].getOutput() - 1) * (lastLayer[i].getOutput() - 1);
-            }else{
-                cost[i] = (lastLayer[i].getOutput()) * (lastLayer[i].getOutput());
-            }
-        }*/
-
-        /*
-        for(int i = layers.length-2; i>=0 ; i--){
-            Perceptron[] perceptronsInCL = layers[i].getPerceptrons();
-            Perceptron[] perceptronsInPL = layers[i+1].getPerceptrons();
-            Double[][] currentWeights = weights.get(i);
-
-            for(int j = 0; j< perceptronsInCL.length; j++){
-                double z = 0;
-                gradientCost.get(i)[j] = 0;
-                for(int w = 0 ; w < currentWeights.length; w++){
-
-                    z+= currentWeights[w][j] *  perceptronsInPL[w].getOutput();
-                    z+= perceptronsInCL[j].getBias();
-
-                    double correctionWeight = 0;
-                /*    System.out.println(" current: i "+i+" current w "+w +" current j "+j);
-                    System.out.println("range of w: "+(currentWeights.length-1)+" range of j: "+(perceptronsInCL.length-1)+" range of gradientCost(i+1): "+gradientCost.get(i+1).length+" range of perceptronsInCL "+perceptronsInCL.length+" range of perceptronsInPL "+perceptronsInPL.length);
-                    correctionWeight = MyMath.Dcdw(perceptronsInCL[j].getOutput(),gradientCost.get(i+1)[w] , z, perceptronsInCL[j].getActivationFunction(), perceptronsInPL[w]);
-                    gradientWeights.get(i)[w][j] += correctionWeight;
-
-                    gradientCost.get(i)[j] += MyMath.Dcda(perceptronsInCL[j].getOutput(),gradientCost.get(i+1)[w] , z, perceptronsInCL[j].getActivationFunction(), currentWeights[w][j]);
-                    gradientBias.get(i)[j] += MyMath.Dcdb(perceptronsInCL[j].getOutput(),gradientCost.get(i+1)[w] , z, perceptronsInCL[j].getActivationFunction());
-
-                }
-              //  System.out.println(":)");
-
-
-            }
-        }*/
 
 
     }
@@ -290,7 +255,7 @@ public class Cnn {
             z +=  + l[j].getBias();
 
             //calculate gradient w and bias
-            double error =  2*(l[j].getOutput() - y[j]) * l[j].getActivationFunction().getDerivative(z);
+            double error =  (l[j].getOutput() - y[j]) * l[j].getActivationFunction().getDerivative(z);
             for (int k = 0; k < lminusOne.length; k++) {
                 gradientWeights.get(layers.length - 2)[j][k] = lminusOne[k].getOutput() * error;
             }
@@ -308,31 +273,31 @@ public class Cnn {
             Perceptron[] lminusOne = layers[l-1].getPerceptrons();
 
             for (int j = 0; j < cl.length; j++) {
-                double z = 0;
+           /*     double z = 0;
                 // calculate z
                 for (int k = 0; k < lminusOne.length; k++) {
                    // System.out.println( lminusOne[k].getOutput());
                     z += weights.get(l-1)[j][k] * lminusOne[k].getOutput();
                 }
-                z+= cl[j].getBias();
+                z+= cl[j].getBias();*/
 
                 for (int k = 0; k < lplusOne.length; k++) {
-                    gradientError.get(l)[j]+= weights.get(l)[k][j] * gradientError.get(l+1)[k] *cl[j].getActivationFunction().getDerivative(z);
+                    gradientError.get(l)[j]+= weights.get(l)[k][j] * gradientError.get(l+1)[k] *cl[j].getActivationFunction().getDerivative(cl[j].getZ());
                  //   System.out.println(weights.get(l)[k][j]+" "+gradientError.get(l+1)[k]+" "+cl[j].getActivationFunction().getDerivative(z));
                 }
 
 
                 //calculate gradient w and bias
                 for (int k = 0; k < lminusOne.length; k++) {
-                    gradientWeights.get(l-1)[j][k] = lminusOne[k].getOutput() * gradientError.get(l)[j];
+                    gradientWeights.get(l-1)[j][k] += lminusOne[k].getOutput() * gradientError.get(l)[j];
                 }
-                gradientBias.get(l)[j] = gradientError.get(l)[j];
+                gradientBias.get(l)[j] += gradientError.get(l)[j];
 
             }
         }
     }
 
-    private void applyTrainging(){
+    private void applyTrainging(double minibatch_size){
      //   printWheights(gradientWeights);
         for(int start = 0 ; start < weights.size(); start++){
             Double[][] cor = gradientWeights.get(start);
@@ -340,29 +305,32 @@ public class Cnn {
             for(int i = 0; i< curr.length;i++){
                 for(int j = 0; j <curr[0].length;j++){
                  //   System.out.println(cor[i][j]);
-                      curr[i][j]-= cor[i][j];
+                      curr[i][j]-= (learning_rate/minibatch_size)*cor[i][j];
+                      cor[i][j] = 0.0;
                 }
             }
         }
         for(int i = 0; i< layers.length;i++){
             Perceptron[] perceptron = layers[i].getPerceptrons();
             for(int j = 0; j< perceptron.length;j++){
-                perceptron[j].setBias(perceptron[j].getBias()- gradientBias.get(i)[j]);
+                perceptron[j].setBias(perceptron[j].getBias()- (learning_rate/minibatch_size)*gradientBias.get(i)[j]);
+                gradientBias.get(i)[j] = 0.0;
             }
         }
     }
+    private void resetError(){
+        for(double[] doubles : gradientError){
+            for(int i = 0 ; i< doubles.length;i++){
+                doubles[i] = 0;
+            }
+        }
+    }
+
     private void init(){
 
-        trainMaterial1 = new ReadImage(serachPath+"0");
-        trainMaterial2 = new ReadImage(serachPath+"1");
-        trainMaterial3 = new ReadImage(serachPath+"2");
-        trainMaterial4 = new ReadImage(serachPath+"3");
-        trainMaterial5 = new ReadImage(serachPath+"4");
-        trainMaterial6 = new ReadImage(serachPath+"5");
-        trainMaterial7 = new ReadImage(serachPath+"6");
-        trainMaterial8 = new ReadImage(serachPath+"7");
-        trainMaterial9 = new ReadImage(serachPath+"8");
-        trainMaterial10 = new ReadImage(serachPath+"9");
+        trainMaterial = new ReadImage(serachPath);
+        testMaterial = new ReadImage(testPath);
+
 
         int hiddenSize = 30 ;
         layers = new Layer[numberOfHiddenLayers+2];
@@ -374,9 +342,9 @@ public class Cnn {
 
         layers[0] = new Layer(0,picH*picW, sigmoid);
         layers[1] = new Layer(1,hiddenSize, sigmoid);
-        layers[2] = new Layer(2,hiddenSize, sigmoid);
-        layers[3] = new Layer(3,hiddenSize, sigmoid);
-        layers[4] = new Layer(4,numberOfOutputs, sigmoid);
+        //layers[2] = new Layer(2,hiddenSize, sigmoid);
+       // layers[3] = new Layer(3,hiddenSize, sigmoid);
+        layers[2] = new Layer(4,numberOfOutputs, sigmoid);
 
         for(Layer layer : layers){
             layer.randomizePerceptron();
@@ -384,15 +352,15 @@ public class Cnn {
 
         gradientBias.add(0,new double[picH*picW]);
         gradientBias.add(1,new double[hiddenSize]);
-        gradientBias.add(2,new double[hiddenSize]);
-        gradientBias.add(3,new double[hiddenSize]);
-        gradientBias.add(4,new double[numberOfOutputs]);
+     //   gradientBias.add(2,new double[hiddenSize]);
+      //  gradientBias.add(3,new double[hiddenSize]);
+        gradientBias.add(2,new double[numberOfOutputs]);
 
         gradientError.add(0,new double[picH*picW]);
         gradientError.add(1,new double[hiddenSize]);
-        gradientError.add(2,new double[hiddenSize]);
-        gradientError.add(3,new double[hiddenSize]);
-        gradientError.add(4,new double[numberOfOutputs]);
+     //   gradientError.add(2,new double[hiddenSize]);
+     //   gradientError.add(3,new double[hiddenSize]);
+        gradientError.add(2,new double[numberOfOutputs]);
 
 
 
@@ -414,10 +382,11 @@ public class Cnn {
         }
         addto.add(tmp);
     }
+
     private void printMatrix(){
         for(Layer layer : layers){
             for(Perceptron perceptron : layer.getPerceptrons()){
-                System.out.print(perceptron.getOutput()+" ");
+                System.out.print(perceptron.getBias()+" ");
             }
             System.out.println();
         }

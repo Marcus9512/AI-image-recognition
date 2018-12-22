@@ -8,10 +8,8 @@ import java.util.Random;
 
 public class MyMath {
     static Random random = new Random();
-    public static int rand(int low, int high){
-        if(low>=high)
-            return low;
-        return random.nextInt(high-low)+low;
+    public static double rand(){
+        return random.nextDouble();
     }
     public static double rand2(int min,int max){
         return (Math.random() * ((max - min) + 1)) + min;
