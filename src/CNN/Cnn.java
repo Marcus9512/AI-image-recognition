@@ -17,22 +17,34 @@ public class Cnn {
     final ActivationFunction sigmoid = new Sigmoid();
 
     int numberOfChannels = 3;
-    int numberOfOutputs = 2;
+    int numberOfOutputs = 10;
     int numberOfHiddenLayers = 3;
 
-    int maxEpochs = 100;
+    int maxEpochs = 1000000;
 
-    int picW = 50;
-    int picH =  50;
+    int picW = 28;
+    int picH =  28;
 
     Layer[] layers;
     ArrayList<Double[][]> weights = new ArrayList<>();
     ReadImage trainMaterial1;
     ReadImage trainMaterial2;
+    ReadImage trainMaterial3;
+    ReadImage trainMaterial4;
+    ReadImage trainMaterial5;
+    ReadImage trainMaterial6;
+    ReadImage trainMaterial7;
+    ReadImage trainMaterial8;
+    ReadImage trainMaterial9;
+    ReadImage trainMaterial10;
+
+    boolean[] done = new boolean[10];
 
     ArrayList<Double[][]> gradientWeights = new ArrayList<>();
     ArrayList<double[]> gradientBias = new ArrayList<>();
     ArrayList<double[]> gradientError = new ArrayList<>();
+
+    String serachPath = "Numbers/";
 
     public Cnn(){
 
@@ -61,6 +73,7 @@ public class Cnn {
                 backwardProp(ds.getSolution());
             //    System.out.println("Iteration complete");
                 applyTrainging();
+              //  printMatrix();
             }
             double stop = System.nanoTime();
             pro = correct/(notCorrect+correct);
@@ -72,8 +85,19 @@ public class Cnn {
             if(pro > 90)
                 break;
 
+            for(int i = 0 ;i<done.length;i++){
+                done[i] = false;
+            }
             trainMaterial1.reset();
             trainMaterial2.reset();
+            trainMaterial3.reset();
+            trainMaterial4.reset();
+            trainMaterial5.reset();
+            trainMaterial6.reset();
+            trainMaterial7.reset();
+            trainMaterial8.reset();
+            trainMaterial9.reset();
+            trainMaterial10.reset();
         }
     }
     private boolean readSolution(int solution){
@@ -91,7 +115,7 @@ public class Cnn {
         return false;
     }
     private Dataset getNext(){
-        if(trainMaterial1.hasNext() && trainMaterial2.hasNext()){
+       /* if(trainMaterial1.hasNext() && trainMaterial2.hasNext()){
             int tmp = MyMath.rand(-5,5);
             if(tmp >0)
                 return new Dataset(trainMaterial1.getNextImage(),0);
@@ -101,7 +125,68 @@ public class Cnn {
             return new Dataset(trainMaterial1.getNextImage(),0);
         }else if(trainMaterial2.hasNext()){
             return new Dataset(trainMaterial2.getNextImage(),1);
-        }
+        }*/
+       if(trainMaterial1.hasNext()){
+           if(!done[0]){
+               System.out.println("Dataset 0");
+               done[0] = true;
+           }
+           return new Dataset(trainMaterial1.getNextImage(),0);
+       }else if(trainMaterial2.hasNext()){
+           if(!done[1]){
+               System.out.println("Dataset 1");
+               done[1] = true;
+           }
+           return new Dataset(trainMaterial2.getNextImage(),1);
+       }else if(trainMaterial3.hasNext()){
+           if(!done[2]){
+               System.out.println("Dataset 2");
+               done[2] = true;
+           }
+           return new Dataset(trainMaterial3.getNextImage(),2);
+       }else if(trainMaterial4.hasNext()){
+           if(!done[3]){
+               System.out.println("Dataset 3");
+               done[3] = true;
+           }
+           return new Dataset(trainMaterial4.getNextImage(),3);
+       }else if(trainMaterial5.hasNext()){
+           if(!done[4]){
+               System.out.println("Dataset 4");
+               done[4] = true;
+           }
+           return new Dataset(trainMaterial5.getNextImage(),4);
+       }else if(trainMaterial6.hasNext()){
+           if(!done[5]){
+               System.out.println("Dataset 5");
+               done[5] = true;
+           }
+           return new Dataset(trainMaterial6.getNextImage(),5);
+       }else if(trainMaterial7.hasNext()){
+           if(!done[6]){
+               System.out.println("Dataset 6");
+               done[6] = true;
+           }
+           return new Dataset(trainMaterial7.getNextImage(),6);
+       }else if(trainMaterial8.hasNext()){
+           if(!done[7]){
+               System.out.println("Dataset 7");
+               done[7] = true;
+           }
+           return new Dataset(trainMaterial8.getNextImage(),7);
+       }else if(trainMaterial9.hasNext()){
+           if(!done[8]){
+               System.out.println("Dataset 8");
+               done[8] = true;
+           }
+           return new Dataset(trainMaterial9.getNextImage(),8);
+       }else if(trainMaterial10.hasNext()){
+           if(!done[9]){
+               System.out.println("Dataset 9");
+               done[9] = true;
+           }
+           return new Dataset(trainMaterial10.getNextImage(),9);
+       }
         return null;
     }
 
@@ -111,7 +196,7 @@ public class Cnn {
             for(int x = 0; x<picH;x++){
                 Color color = new Color(im.getRGB(x,y));
                 //TODO implementera 3 lager rgb
-                double colorSum = ((double)( +color.getBlue() ))/(255.0);
+                double colorSum = ((double)( color.getRed()+color.getBlue()+color.getGreen() ))/(255.0*3.0);
                 perceptrons[y*picW+x].setOutput(colorSum);
             }
         }
@@ -121,10 +206,16 @@ public class Cnn {
             Perceptron[] prev = layers[i-1].getPerceptrons();
             for(Perceptron perceptron: layers[i].getPerceptrons()){
                 perceptron.calculateInput(weights.get(i-1),prev);
+
             }
         }
-       // printMatrix();
-       // printWheights();
+       //printMatrix();
+      //  printWheights(weights);
+    /*                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
     }
     private void backwardProp(int solutionIndex){
         //för varje nod utom input:
@@ -194,8 +285,9 @@ public class Cnn {
             double z = 0;
             // calculate z
             for(int k = 0 ; k< lminusOne.length;k++){
-                z += weights.get(layers.length-2)[j][k] * lminusOne[k].getOutput() + l[j].getBias();
+                z += weights.get(layers.length-2)[j][k] * lminusOne[k].getOutput();
             }
+            z +=  + l[j].getBias();
 
             //calculate gradient w and bias
             double error =  2*(l[j].getOutput() - y[j]) * l[j].getActivationFunction().getDerivative(z);
@@ -206,18 +298,6 @@ public class Cnn {
             gradientError.get(gradientError.size()-1)[j] = error;
 
         }
-        /*double error = 0;
-        for(int j = 0 ; j<l.length;j++){
-            error += errorInLayer[j];
-        }
-        for(int j = 0 ; j< l.length;j++) {
-            for (int k = 0; k < lminusOne.length; k++) {
-                gradientWeights.get(layers.length - 2)[j][k] = lminusOne[k].getOutput() * error;
-            }
-            gradientBias.get(gradientBias.size() - 1)[j] = error;
-        }
-        gradientError[gradientError.length-1] = error;*/
-
 
     }
 
@@ -231,13 +311,16 @@ public class Cnn {
                 double z = 0;
                 // calculate z
                 for (int k = 0; k < lminusOne.length; k++) {
-                    z += weights.get(l-1)[j][k] * lminusOne[k].getOutput() + cl[j].getBias();
+                   // System.out.println( lminusOne[k].getOutput());
+                    z += weights.get(l-1)[j][k] * lminusOne[k].getOutput();
                 }
+                z+= cl[j].getBias();
 
                 for (int k = 0; k < lplusOne.length; k++) {
-                    gradientError.get(l)[j]+= gradientWeights.get(l)[k][j] * gradientError.get(l+1)[k] ;
+                    gradientError.get(l)[j]+= weights.get(l)[k][j] * gradientError.get(l+1)[k] *cl[j].getActivationFunction().getDerivative(z);
+                 //   System.out.println(weights.get(l)[k][j]+" "+gradientError.get(l+1)[k]+" "+cl[j].getActivationFunction().getDerivative(z));
                 }
-                gradientError.get(l)[j]*= cl[j].getActivationFunction().getDerivative(z);
+
 
                 //calculate gradient w and bias
                 for (int k = 0; k < lminusOne.length; k++) {
@@ -250,27 +333,36 @@ public class Cnn {
     }
 
     private void applyTrainging(){
+     //   printWheights(gradientWeights);
         for(int start = 0 ; start < weights.size(); start++){
             Double[][] cor = gradientWeights.get(start);
             Double[][] curr = weights.get(start);
             for(int i = 0; i< curr.length;i++){
                 for(int j = 0; j <curr[0].length;j++){
-                    System.out.println(cor[i][j]);
-                    curr[i][j]+= cor[i][j];
+                 //   System.out.println(cor[i][j]);
+                      curr[i][j]-= cor[i][j];
                 }
             }
         }
         for(int i = 0; i< layers.length;i++){
             Perceptron[] perceptron = layers[i].getPerceptrons();
             for(int j = 0; j< perceptron.length;j++){
-                perceptron[j].setBias(perceptron[j].getBias()+ gradientBias.get(i)[j]);
+                perceptron[j].setBias(perceptron[j].getBias()- gradientBias.get(i)[j]);
             }
         }
     }
     private void init(){
 
-        trainMaterial1 = new ReadImage("1");
-        trainMaterial2 = new ReadImage("2");
+        trainMaterial1 = new ReadImage(serachPath+"0");
+        trainMaterial2 = new ReadImage(serachPath+"1");
+        trainMaterial3 = new ReadImage(serachPath+"2");
+        trainMaterial4 = new ReadImage(serachPath+"3");
+        trainMaterial5 = new ReadImage(serachPath+"4");
+        trainMaterial6 = new ReadImage(serachPath+"5");
+        trainMaterial7 = new ReadImage(serachPath+"6");
+        trainMaterial8 = new ReadImage(serachPath+"7");
+        trainMaterial9 = new ReadImage(serachPath+"8");
+        trainMaterial10 = new ReadImage(serachPath+"9");
 
         int hiddenSize = 30 ;
         layers = new Layer[numberOfHiddenLayers+2];
@@ -315,7 +407,7 @@ public class Cnn {
         for(int i = 0; i< x ; i++){
             for(int j = 0; j < y ; j++){
                 if(!onlyZeros)
-                    tmp[i][j] = new Double(MyMath.rand(-10,10));
+                    tmp[i][j] = MyMath.rand2(-10,10);
                 else
                     tmp[i][j] = 0.0;
             }
@@ -330,9 +422,9 @@ public class Cnn {
             System.out.println();
         }
     }
-    private void printWheights(){
+    private void printWheights(ArrayList<Double[][]> in){
         int i = 0;
-        for(Double[][] doubles : weights){
+        for(Double[][] doubles : in){
             System.out.println(i);
             for(int x = 0 ; x<doubles.length;x++){
                 for(int y = 0; y<doubles[0].length; y++){

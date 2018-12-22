@@ -13,7 +13,12 @@ public class MyMath {
             return low;
         return random.nextInt(high-low)+low;
     }
-
+    public static double rand2(int min,int max){
+        return (Math.random() * ((max - min) + 1)) + min;
+    }
+    public static double grand(){
+        return random.nextGaussian()*10;
+    }
     public static double Dcdw(double a,double y, double z, ActivationFunction activationFunction, Perceptron prevLayer){
         return dcda(a,y) * dadz(z,activationFunction) * dzdw(prevLayer);
     }

@@ -39,6 +39,9 @@ public class SaveAndLoadNetwork  {
             objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(new NetworkHolder(layer,weights));
 
+            objectOutputStream.flush();
+            objectOutputStream.close();
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
