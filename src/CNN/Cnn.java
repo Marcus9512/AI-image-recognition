@@ -15,13 +15,13 @@ import java.util.ArrayList;
 public class Cnn {
     final ActivationFunction relu = new ReLu();
     final ActivationFunction sigmoid = new Sigmoid();
-    final double learning_rate = 3.0;
+    final double learning_rate = 3;
 
     int numberOfChannels = 3;
     int numberOfOutputs = 10;
     int numberOfHiddenLayers = 1;
 
-    int maxEpochs = 200;
+    int maxEpochs = 30;
 
     int picW = 28;
     int picH =  28;
@@ -397,7 +397,7 @@ public class Cnn {
         for(int i = 0; i< x ; i++){
             for(int j = 0; j < y ; j++){
                 if(!onlyZeros)
-                    tmp[i][j] = MyMath.rand2(-10,10);
+                    tmp[i][j] = MyMath.rand()*2-1;
                 else
                     tmp[i][j] = 0.0;
             }

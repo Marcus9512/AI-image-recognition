@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Perceptron implements Serializable {
     private ActivationFunction activationFuntion;
     private int id; // id should always start at 0
-    private double bias = -0;
+    private double bias = 0;
     private double threshold = 0;
     private double output = 0;
     private double z = 0;
