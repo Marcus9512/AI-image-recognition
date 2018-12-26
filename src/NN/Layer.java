@@ -1,4 +1,4 @@
-package CNN;
+package NN;
 
 import ActivationFunctions.ActivationFunction;
 import Tools.MyMath;

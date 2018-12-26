@@ -1,7 +1,9 @@
 package Graphics;
 
 
-import CNN.Neural_Network;
+import NN.MultipleNumbers;
+import NN.Neural_Network;
+import Tools.Holder;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -11,24 +13,24 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 
 public class NeuralNetGraphics extends JPanel {
 
     Dimension dimension;
     BufferedImage bufferedImage;
+    MultipleNumbers multipleNumbers;
 
     FileNameExtensionFilter filter;
     static JTextArea textArea;
-    static Neural_Network cnn;
+    static Neural_Network nn;
 
 
     public NeuralNetGraphics(int x, int y){
         dimension = new Dimension(x,y);
         setPreferredSize(dimension);
         filter = new FileNameExtensionFilter("Image filter",ImageIO.getReaderFileSuffixes());
-
+        multipleNumbers = new MultipleNumbers();
 
 
     }
@@ -47,8 +49,12 @@ public class NeuralNetGraphics extends JPanel {
             System.out.println(file.getPath());
             bufferedImage = ImageIO.read(file);
             draw();
-            int res = cnn.runNetwork(bufferedImage);
-            textArea.setText("Network answer: "+res);
+            if(bufferedImage.getHeight() > Neural_Network.picH || bufferedImage.getWidth() > Neural_Network.picW){
+                multipleNumbers.analyzeImage(bufferedImage,nn);
+            }else {
+                Holder res = nn.runNetwork(bufferedImage);
+                textArea.setText("Network answer: " + res.getSol() + " " + res.getHowClose());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,9 +83,9 @@ public class NeuralNetGraphics extends JPanel {
         String input = ng.loadCNN(jFrame,ng);
 
         if(ng == null)
-            cnn = new Neural_Network(true,"");
+            nn = new Neural_Network(true,"");
         else
-            cnn = new Neural_Network(false,input);
+            nn = new Neural_Network(false,input);
 
 
         JPanel buttonPanel = new JPanel();

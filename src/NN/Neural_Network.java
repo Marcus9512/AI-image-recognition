@@ -1,10 +1,11 @@
-package CNN;
+package NN;
 
 import ActivationFunctions.ActivationFunction;
 import ActivationFunctions.ReLu;
 import ActivationFunctions.Sigmoid;
 import ImageTools.Dataset;
 import ImageTools.ReadImage;
+import Tools.Holder;
 import Tools.MyMath;
 
 import java.awt.*;
@@ -16,14 +17,13 @@ public class Neural_Network {
     final ActivationFunction sigmoid = new Sigmoid();
     final double learning_rate = 3;
 
-    int numberOfChannels = 3;
     int numberOfOutputs = 10;
     int numberOfHiddenLayers = 2;
 
     int maxEpochs = 30;
 
-    int picW = 28;
-    int picH =  28;
+    public static int picW = 28;
+    public static int picH = 28;
 
     Layer[] layers;
     ArrayList<Double[][]> weights = new ArrayList<>();
@@ -54,7 +54,7 @@ public class Neural_Network {
         train();
         saveNetwork("Neural-Net");
     }
-    public int runNetwork(BufferedImage bi){
+    public Holder runNetwork(BufferedImage bi){
         decodeImageToInputLayer(bi);
         forwardProp();
 
@@ -67,7 +67,7 @@ public class Neural_Network {
                 brightest = perceptrons[i].getOutput();
             }
         }
-        return pick;
+        return new Holder(pick,Math.abs(1-brightest));
     }
     private void train(){
         Dataset ds ;

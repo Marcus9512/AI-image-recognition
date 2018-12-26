@@ -1,7 +1,6 @@
 package Tools;
 
-import CNN.Layer;
-import CNN.Perceptron;
+import NN.Perceptron;
 import ActivationFunctions.ActivationFunction;
 
 import java.util.Random;

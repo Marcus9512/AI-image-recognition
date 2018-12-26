@@ -1,4 +1,4 @@
-package CNN;
+package NN;
 
 public class Solution {
 
