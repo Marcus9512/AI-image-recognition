@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -23,6 +24,7 @@ public class ReadImage {
 
 
         File[] file1 = folder.listFiles();
+        System.out.println(Arrays.toString(file1));
         for(int i = 0 ; i < file1.length ; i++){
             File[] file2 = file1[i].listFiles();
             for(int j = 0 ; j <file2.length;j++){

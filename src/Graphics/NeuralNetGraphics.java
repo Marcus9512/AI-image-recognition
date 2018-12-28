@@ -14,6 +14,8 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class NeuralNetGraphics extends JPanel {
 
@@ -43,22 +45,41 @@ public class NeuralNetGraphics extends JPanel {
 
         }
     }
-
+    private void drawResults(ArrayList<Holder> arrayList){
+        Graphics og = getGraphics();
+        double x = (dimension.width/2.0) - (bufferedImage.getWidth()/2.0);
+        double y = (dimension.height/2.0) - (bufferedImage.getHeight()/2.0);
+        for(Holder holder: arrayList){
+            og.setColor(Color.BLUE);
+            og.drawRect((int)x+holder.getX(),(int)y,Neural_Network.picW,Neural_Network.picH);
+        }
+    }
     public void loadImage(File file){
         try {
             System.out.println(file.getPath());
             bufferedImage = ImageIO.read(file);
             draw();
             if(bufferedImage.getHeight() > Neural_Network.picH || bufferedImage.getWidth() > Neural_Network.picW){
-                multipleNumbers.analyzeImage(bufferedImage,nn);
+                ArrayList<Holder> results = multipleNumbers.analyzeImage(bufferedImage,nn);
+                drawResults(results);
+                StringBuilder printMe = new StringBuilder();
+                for(Holder holder : results){
+                    printMe.append(holder.getSol());
+                }
+                textArea.setText("Network answer: " + printMe);
             }else {
                 Holder res = nn.runNetwork(bufferedImage);
-                textArea.setText("Network answer: " + res.getSol() + " " + res.getHowClose());
+                if(res.getSol() != 10) {
+                    textArea.setText("Network answer: " + res.getSol() + " " + res.getHowClose());
+                }else{
+                    textArea.setText("Network answer: It´s nothing there " + res.getHowClose());
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     public String loadCNN(JFrame jFrame, NeuralNetGraphics ng){
         ClassLoader classLoader = getClass().getClassLoader();

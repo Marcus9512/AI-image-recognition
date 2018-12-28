@@ -17,10 +17,10 @@ public class Neural_Network {
     final ActivationFunction sigmoid = new Sigmoid();
     final double learning_rate = 3;
 
-    int numberOfOutputs = 10;
+    int numberOfOutputs = 11;
     int numberOfHiddenLayers = 2;
 
-    int maxEpochs = 30;
+    int maxEpochs = 10;
 
     public static int picW = 28;
     public static int picH = 28;
@@ -31,7 +31,7 @@ public class Neural_Network {
     ReadImage testMaterial;
 
 
-    boolean[] done = new boolean[10];
+    //boolean[] done = new boolean[10];
 
     ArrayList<Double[][]> gradientWeights = new ArrayList<>();
     ArrayList<double[]> gradientBias = new ArrayList<>();
@@ -60,6 +60,7 @@ public class Neural_Network {
 
         int pick = 0;
         double brightest = Double.MIN_VALUE;
+
         Perceptron[] perceptrons = layers[layers.length-1].getPerceptrons();
         for(int i = 0 ; i< perceptrons.length; i++ ){
             if(perceptrons[i].getOutput() > brightest){
@@ -67,7 +68,18 @@ public class Neural_Network {
                 brightest = perceptrons[i].getOutput();
             }
         }
-        return new Holder(pick,Math.abs(1-brightest));
+
+        double error = 0;
+        for(int i = 0 ; i< perceptrons.length;i++){
+            if(i == pick){
+                error+= ((1.0-perceptrons[i].getOutput())*(1.0-perceptrons[i].getOutput()));
+            }else{
+                error+= ((0.0-perceptrons[i].getOutput())*(0.0-perceptrons[i].getOutput()));
+            }
+        }
+        error = error/(numberOfOutputs);
+
+        return new Holder(pick,Math.abs(error));
     }
     private void train(){
         Dataset ds ;
@@ -81,7 +93,7 @@ public class Neural_Network {
 
             while ((ds = trainMaterial.getNext()) != null) {
                 decodeImageToInputLayer(ds.getImage());
-
+                //System.out.println(ds.getSolution());
                 backwardProp(ds.getSolution());
 
                 minibatch_size++;
@@ -101,9 +113,9 @@ public class Neural_Network {
             if(pro > 90)
                 break;
 
-            for(int i = 0 ;i<done.length;i++){
+         /*   for(int i = 0 ;i<done.length;i++){
                 done[i] = false;
-            }
+            }*/
             trainMaterial.reset();
 
         }
@@ -344,7 +356,6 @@ public class Neural_Network {
     }
     private void loadNetwork(String networkName){
         Tools.SaveAndLoadNetwork.NetworkHolder networkHolder = Tools.SaveAndLoadNetwork.load(networkName);
-        System.out.println(networkHolder);
         layers = networkHolder.getLayer();
         weights = networkHolder.getWeights();
     }
