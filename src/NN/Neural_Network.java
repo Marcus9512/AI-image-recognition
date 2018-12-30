@@ -69,22 +69,14 @@ public class Neural_Network {
             }
         }
 
-        double error = 0;
-        for(int i = 0 ; i< perceptrons.length;i++){
-            if(i == pick){
-                error+= ((1.0-perceptrons[i].getOutput())*(1.0-perceptrons[i].getOutput()));
-            }else{
-                error+= ((0.0-perceptrons[i].getOutput())*(0.0-perceptrons[i].getOutput()));
-            }
-        }
-        error = error/(numberOfOutputs);
+        double error = getCost(pick,perceptrons);
 
         return new Holder(pick,Math.abs(error));
     }
     private void train(){
+
         Dataset ds ;
 
-        double pro = 0;
         int minibatch_size = 0;
 
         for(int epochs = 0; epochs < maxEpochs; epochs++ ) {
@@ -92,8 +84,8 @@ public class Neural_Network {
             double time = System.nanoTime();
 
             while ((ds = trainMaterial.getNext()) != null) {
+
                 decodeImageToInputLayer(ds.getImage());
-                //System.out.println(ds.getSolution());
                 backwardProp(ds.getSolution());
 
                 minibatch_size++;
@@ -110,12 +102,6 @@ public class Neural_Network {
 
             readSolution(epochs,time,stop);
 
-            if(pro > 90)
-                break;
-
-         /*   for(int i = 0 ;i<done.length;i++){
-                done[i] = false;
-            }*/
             trainMaterial.reset();
 
         }
@@ -124,6 +110,8 @@ public class Neural_Network {
         Dataset ds;
         int c = 0;
         int w = 0;
+
+        double error = 0;
         while ((ds = testMaterial.getNext()) != null){
             decodeImageToInputLayer(ds.getImage());
             forwardProp();
@@ -142,20 +130,32 @@ public class Neural_Network {
             }else {
                 w++;
             }
+            error+=getCost(pick,perceptrons);
 
         }
         testMaterial.reset();
-        System.out.println("After epoch "+ epoch+", correct answers: "+c+" of "+(w+c)+" it took "+(stop-start)/1000000000.0 +"s");
+        System.out.println("After epoch "+ epoch+", correct answers: "+c+" of "+(w+c)+", cost function: "+error/(w+c)+" it took "+(stop-start)/1000000000.0 +"s");
 
 
 
+    }
+    private double getCost(int pick,Perceptron[] perceptrons){
+        double error = 0;
+        for(int i = 0 ; i< perceptrons.length;i++){
+            if(i == pick){
+                error+= ((1.0-perceptrons[i].getOutput())*(1.0-perceptrons[i].getOutput()));
+            }else{
+                error+= ((0.0-perceptrons[i].getOutput())*(0.0-perceptrons[i].getOutput()));
+            }
+        }
+        error = error/(numberOfOutputs);
+        return error;
     }
     private void decodeImageToInputLayer(BufferedImage im){
         Perceptron[] perceptrons = layers[0].getPerceptrons();
         for(int y =0 ; y<picW;y++){
             for(int x = 0; x<picH;x++){
                 Color color = new Color(im.getRGB(x,y));
-                //TODO implementera 3 lager rgb
                 double colorSum = ((double)( color.getRed()+color.getBlue()+color.getGreen() ))/(255.0*3.0);
                 perceptrons[y*picW+x].setOutput(colorSum);
             }
@@ -168,18 +168,13 @@ public class Neural_Network {
                 perceptron.calculateInput(weights.get(i-1),prev);
             }
         }
-       // printMatrix();
     }
     private void backwardProp(int solutionIndex){
-        //för varje nod utom input:
-        //cost = (faktiskt värde - önskat värde)^2
 
         forwardProp();
         calculateOutputLayer(solutionIndex);
         calculateRemaingingHiddenLayers();
         resetError();
-
-
 
     }
     private void calculateOutputLayer(int solution){
@@ -220,9 +215,7 @@ public class Neural_Network {
 
                 for (int k = 0; k < lplusOne.length; k++) {
                     gradientError.get(l)[j]+= weights.get(l)[k][j] * gradientError.get(l+1)[k] *cl[j].getActivationFunction().getDerivative(cl[j].getZ());
-                 //   System.out.println(weights.get(l)[k][j]+" "+gradientError.get(l+1)[k]+" "+cl[j].getActivationFunction().getDerivative(z));
                 }
-
                 //calculate gradient w and bias
                 for (int k = 0; k < lminusOne.length; k++) {
                     gradientWeights.get(l-1)[j][k] += lminusOne[k].getOutput() * gradientError.get(l)[j];
@@ -234,8 +227,7 @@ public class Neural_Network {
     }
 
     private void applyTrainging(double minibatch_size){
-       // printWheights(gradientWeights);
-      //  printBias();
+
         for(int start = 0 ; start < weights.size(); start++){
             Double[][] cor = gradientWeights.get(start);
             Double[][] curr = weights.get(start);
@@ -274,6 +266,7 @@ public class Neural_Network {
         System.out.println("number of outputs: "+ numberOfOutputs);
         System.out.println("number of hidden layers: "+ numberOfHiddenLayers);
         System.out.println("hiddensize: "+ hiddenSize);
+        System.out.println("number of epochs: "+ maxEpochs);
 
 
         layers[0] = new Layer(0,picH*picW, sigmoid);

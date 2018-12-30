@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: Train.jar
+Main-Class: NN.Neural_Network
+

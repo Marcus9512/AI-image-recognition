@@ -81,7 +81,7 @@ public class NeuralNetGraphics extends JPanel {
     }
 
 
-    public String loadCNN(JFrame jFrame, NeuralNetGraphics ng){
+    public String loadNN(JFrame jFrame, NeuralNetGraphics ng){
         ClassLoader classLoader = getClass().getClassLoader();
         File folder = new File(classLoader.getResource("SavedNetworks").getFile());
 
@@ -101,7 +101,7 @@ public class NeuralNetGraphics extends JPanel {
         JPanel mainPanel = new JPanel();
         NeuralNetGraphics ng = new NeuralNetGraphics(600,400);
 
-        String input = ng.loadCNN(jFrame,ng);
+        String input = ng.loadNN(jFrame,ng);
 
         if(ng == null)
             nn = new Neural_Network(true,"");
@@ -148,7 +148,6 @@ public class NeuralNetGraphics extends JPanel {
 
         jFrame.setSize(600,600);
         jFrame.setResizable(false);
-      //  jFrame.pack();
         jFrame.setLocationRelativeTo(null);
         jFrame.setVisible(true);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -18,6 +18,7 @@ public class ReadImage {
     public ReadImage(String path){
         createImageList(path);
     }
+    //Loads all files from path and stores them in imagePathList, the order in the list is random
     private void createImageList(String path){
         ClassLoader classLoader = getClass().getClassLoader();
         File folder = new File(classLoader.getResource(path).getFile());
@@ -38,6 +39,7 @@ public class ReadImage {
         }
 
     }
+    //Returns a next dataset from imagePathList, the file in imagePathList is converted to a BufferedImage and stored with its id in a data holder,
     public Dataset getNext(){
         Dataholder tmp;
         if(currentImage < imagePathList.size()) {

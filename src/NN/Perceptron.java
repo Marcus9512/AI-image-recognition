@@ -5,6 +5,7 @@ import ActivationFunctions.ActivationFunction;
 import java.io.Serializable;
 
 public class Perceptron implements Serializable {
+
     private ActivationFunction activationFuntion;
     private int id; // id should always start at 0
     private double bias = 0;
@@ -17,14 +18,9 @@ public class Perceptron implements Serializable {
         double sum = 0;
         for(int i = 0 ; i<input[id].length;i++){
             sum += input[id][i]*prev[i].getOutput();
-         //   System.out.print(input[id][i]+" "+prev[i].getOutput()+" currentSum :"+sum+" |");
         }
-      //  System.out.println(sum);
         z = sum+bias;
         output= activationFuntion.calculateActivation(z);
-
-       // output = res > threshold ? 1 : 0;
-        //System.out.println(output);
     }
 
     public int getId() {

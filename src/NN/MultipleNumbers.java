@@ -7,7 +7,9 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class MultipleNumbers {
+
     Holder[] images ;
+
     public ArrayList<Holder> analyzeImage(BufferedImage bufferedImage, Neural_Network nn){
         int loopX = bufferedImage.getWidth() - Neural_Network.picW;
         int loopY = bufferedImage.getHeight() - Neural_Network.picH;
@@ -19,7 +21,6 @@ public class MultipleNumbers {
             for(int y = 0; y<=loopY;y++){
                 Holder tmp = nn.runNetwork(getSubImage(bufferedImage,x,y,Neural_Network.picH));
                 if(brightest.getHowClose()> tmp.getHowClose()) {
-                  //  System.out.println("True");
                     brightest = tmp;
                     brightest.setX(x);
                     brightest.setY(y);
