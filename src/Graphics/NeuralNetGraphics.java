@@ -51,7 +51,7 @@ public class NeuralNetGraphics extends JPanel {
         double y = (dimension.height/2.0) - (bufferedImage.getHeight()/2.0);
         for(Holder holder: arrayList){
             og.setColor(Color.BLUE);
-            og.drawRect((int)x+holder.getX(),(int)y,Neural_Network.picW,Neural_Network.picH);
+            og.drawRect((int)x+holder.getX(),(int)y+holder.getY(),Neural_Network.picW,Neural_Network.picH);
         }
     }
     public void loadImage(File file){
@@ -82,8 +82,8 @@ public class NeuralNetGraphics extends JPanel {
 
 
     public String loadNN(JFrame jFrame, NeuralNetGraphics ng){
-        ClassLoader classLoader = getClass().getClassLoader();
-        File folder = new File(classLoader.getResource("SavedNetworks").getFile());
+        //File folder = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath()+"/SavedNetworks");
+        File folder = new File("SavedNetworks");
 
         JFileChooser jFileChooser = new JFileChooser();
         jFileChooser.setCurrentDirectory(folder);
@@ -121,8 +121,9 @@ public class NeuralNetGraphics extends JPanel {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ClassLoader classLoader = getClass().getClassLoader();
-                File folder = new File(classLoader.getResource("testing").getFile());
+               /* ClassLoader classLoader = getClass().getClassLoader();
+                File folder = new File(classLoader.getResource("testing").getFile());*/
+                File folder = new File("testing");
 
                 JFileChooser jFileChooser = new JFileChooser();
                 jFileChooser.setCurrentDirectory(folder);

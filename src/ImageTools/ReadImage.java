@@ -20,8 +20,9 @@ public class ReadImage {
     }
     //Loads all files from path and stores them in imagePathList, the order in the list is random
     private void createImageList(String path){
-        ClassLoader classLoader = getClass().getClassLoader();
-        File folder = new File(classLoader.getResource(path).getFile());
+       // ClassLoader classLoader = getClass().getClassLoader();
+        //File folder = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath()+"/"+path);
+        File folder = new File(path);
 
 
         File[] file1 = folder.listFiles();
