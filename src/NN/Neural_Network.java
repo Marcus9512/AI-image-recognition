@@ -194,7 +194,7 @@ public class Neural_Network {
         for(int j = 0 ; j< l.length;j++){
 
             //calculate gradient w and bias
-            double error =  (l[j].getOutput() - y[j]) * l[j].getActivationFunction().getDerivative(l[j].getZ());
+            double error =  2*(l[j].getOutput() - y[j]) * l[j].getActivationFunction().getDerivative(l[j].getZ());
             for (int k = 0; k < lminusOne.length; k++) {
                 gradientWeights.get(layers.length - 2)[j][k] = lminusOne[k].getOutput() * error;
             }

@@ -82,8 +82,8 @@ public class NeuralNetGraphics extends JPanel {
 
 
     public String loadNN(JFrame jFrame, NeuralNetGraphics ng){
-        //File folder = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath()+"/SavedNetworks");
-        File folder = new File("SavedNetworks");
+        File folder = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath()+"/SavedNetworks");
+        //File folder = new File("SavedNetworks");
 
         JFileChooser jFileChooser = new JFileChooser();
         jFileChooser.setCurrentDirectory(folder);
@@ -121,9 +121,9 @@ public class NeuralNetGraphics extends JPanel {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               /* ClassLoader classLoader = getClass().getClassLoader();
-                File folder = new File(classLoader.getResource("testing").getFile());*/
-                File folder = new File("testing");
+                ClassLoader classLoader = getClass().getClassLoader();
+                File folder = new File(classLoader.getResource("testing").getFile());
+                //File folder = new File("testing");
 
                 JFileChooser jFileChooser = new JFileChooser();
                 jFileChooser.setCurrentDirectory(folder);
