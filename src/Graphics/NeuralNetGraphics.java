@@ -70,7 +70,7 @@ public class NeuralNetGraphics extends JPanel {
             }else {
                 Holder res = nn.runNetwork(bufferedImage);
                 if(res.getSol() != 10) {
-                    textArea.setText("Network answer: " + res.getSol() + " " + res.getHowClose());
+                    textArea.setText("Network answer: " + res.getSol() + " cost: " + res.getHowClose());
                 }else{
                     textArea.setText("Network answer: It´s nothing there " + res.getHowClose());
                 }

@@ -143,9 +143,9 @@ public class Neural_Network {
         double error = 0;
         for(int i = 0 ; i< perceptrons.length;i++){
             if(i == pick){
-                error+= ((1.0-perceptrons[i].getOutput())*(1.0-perceptrons[i].getOutput()));
+                error+= ((perceptrons[i].getOutput()-1.0)*(perceptrons[i].getOutput()-1.0));
             }else{
-                error+= ((0.0-perceptrons[i].getOutput())*(0.0-perceptrons[i].getOutput()));
+                error+= ((perceptrons[i].getOutput()-0.0)*(perceptrons[i].getOutput()-0.0));
             }
         }
         error = error/(numberOfOutputs);
@@ -198,7 +198,7 @@ public class Neural_Network {
             for (int k = 0; k < lminusOne.length; k++) {
                 gradientWeights.get(layers.length - 2)[j][k] = lminusOne[k].getOutput() * error;
             }
-            gradientBias.get(gradientBias.size() - 1)[j] = error;
+            gradientBias.get(gradientBias.size() - 1)[j] += error;
             gradientError.get(gradientError.size()-1)[j] = error;
 
         }
