@@ -9,12 +9,12 @@ import java.util.Arrays;
 public class SaveAndLoadNetwork  {
 
     private static final String dir = "res/SavedNetworks/";
-   // private static final String dir = "SavedNetworks/";
+    //private static final String dir = "SavedNetworks/";
 
     public static void save(Layer[] layer,ArrayList<Double[][]> weights,String name){
 
         File file = new File("res/SavedNetworks");
-       // File file = new File("SavedNetworks");
+        //File file = new File("SavedNetworks");
         if(!file.exists()){
             file.mkdir();
         }

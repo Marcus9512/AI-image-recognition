@@ -63,7 +63,8 @@ public class NeuralNetGraphics extends JPanel {
             og.drawRect((int)x+holder.getX(),(int)y+holder.getY(),Neural_Network.picW,Neural_Network.picH);
         }
     }
-    // Loads the image and checks the image size
+    // Loads the image and checks the image size. if it is bigger then 28x28 multipleNumbers is called otherwise neural_network.
+    // The resukt is the drawn to the screen,
     public void loadImage(File file){
         try {
             System.out.println(file.getPath());
@@ -93,7 +94,7 @@ public class NeuralNetGraphics extends JPanel {
 
     public String loadNN(JFrame jFrame, NeuralNetGraphics ng){
         File folder = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath()+"/SavedNetworks");
-        //File folder = new File("SavedNetworks");
+       // File folder = new File("SavedNetworks");
 
         JFileChooser jFileChooser = new JFileChooser();
         jFileChooser.setCurrentDirectory(folder);
@@ -133,7 +134,7 @@ public class NeuralNetGraphics extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 ClassLoader classLoader = getClass().getClassLoader();
                 File folder = new File(classLoader.getResource("testing").getFile());
-                //File folder = new File("testing");
+              //  File folder = new File("testing");
 
                 JFileChooser jFileChooser = new JFileChooser();
                 jFileChooser.setCurrentDirectory(folder);
