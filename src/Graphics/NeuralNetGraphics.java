@@ -19,6 +19,10 @@ import java.util.Collections;
 
 public class NeuralNetGraphics extends JPanel {
 
+    /**
+     * This class manages the graphical user interface.
+     */
+
     Dimension dimension;
     BufferedImage bufferedImage;
     MultipleNumbers multipleNumbers;
@@ -28,6 +32,8 @@ public class NeuralNetGraphics extends JPanel {
     static Neural_Network nn;
 
 
+
+    //Init function for the GUI
     public NeuralNetGraphics(int x, int y){
         dimension = new Dimension(x,y);
         setPreferredSize(dimension);
@@ -36,6 +42,8 @@ public class NeuralNetGraphics extends JPanel {
 
 
     }
+
+    // This function is used to draw the loaded test image on screen
     private void draw(){
         Graphics og = getGraphics();
         if(bufferedImage != null){
@@ -45,6 +53,7 @@ public class NeuralNetGraphics extends JPanel {
 
         }
     }
+    // This function draws a blue rectangle around the found numbers in images.
     private void drawResults(ArrayList<Holder> arrayList){
         Graphics og = getGraphics();
         double x = (dimension.width/2.0) - (bufferedImage.getWidth()/2.0);
@@ -54,6 +63,7 @@ public class NeuralNetGraphics extends JPanel {
             og.drawRect((int)x+holder.getX(),(int)y+holder.getY(),Neural_Network.picW,Neural_Network.picH);
         }
     }
+    // Loads the image and checks the image size
     public void loadImage(File file){
         try {
             System.out.println(file.getPath());
