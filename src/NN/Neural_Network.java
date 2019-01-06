@@ -1,7 +1,6 @@
 package NN;
 
 import ActivationFunctions.ActivationFunction;
-import ActivationFunctions.ReLu;
 import ActivationFunctions.Sigmoid;
 import ImageTools.Dataset;
 import ImageTools.ReadImage;
@@ -13,7 +12,13 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Neural_Network {
-    final ActivationFunction relu = new ReLu();
+
+    /**
+     * This is core of the neural network. This class also contains a main() to train the network
+     * Uses supervised learning and sigmoid as activation function
+     */
+
+    //final ActivationFunction relu = new ReLu();
     final ActivationFunction sigmoid = new Sigmoid();
     final double learning_rate = 3;
 
@@ -30,16 +35,15 @@ public class Neural_Network {
     ReadImage trainMaterial;
     ReadImage testMaterial;
 
-
-    //boolean[] done = new boolean[10];
-
     ArrayList<Double[][]> gradientWeights = new ArrayList<>();
     ArrayList<double[]> gradientBias = new ArrayList<>();
     ArrayList<double[]> gradientError = new ArrayList<>();
 
-    String serachPath = "Numbers/";
+    String searchPath = "Numbers/";
     String testPath = "testing/";
 
+    // initialize the network by either loading an existing network or create a new.
+    // This is determined by newNetwork
     public Neural_Network(boolean newNetwork, String path){
 
         if(newNetwork) {
@@ -54,18 +58,21 @@ public class Neural_Network {
         train();
         saveNetwork("Neural-Net");
     }
+
+    // Runs the network to get a solution. Does no training.
+    // the method picks the strongest output perceptron and decodes the answer.
     public Holder runNetwork(BufferedImage bi){
         decodeImageToInputLayer(bi);
         forwardProp();
 
         int pick = 0;
-        double brightest = Double.MIN_VALUE;
+        double strongest = Double.MIN_VALUE;
 
         Perceptron[] perceptrons = layers[layers.length-1].getPerceptrons();
         for(int i = 0 ; i< perceptrons.length; i++ ){
-            if(perceptrons[i].getOutput() > brightest){
+            if(perceptrons[i].getOutput() > strongest){
                 pick = i;
-                brightest = perceptrons[i].getOutput();
+                strongest = perceptrons[i].getOutput();
             }
         }
 
@@ -73,56 +80,69 @@ public class Neural_Network {
 
         return new Holder(pick,Math.abs(error));
     }
+
+    // Method to train the network
     private void train(){
 
         Dataset ds ;
 
         int minibatch_size = 0;
 
+        // for each epoch, forward and backward propagate on all images in the training data
         for(int epochs = 0; epochs < maxEpochs; epochs++ ) {
 
             double time = System.nanoTime();
 
+            // for all images
             while ((ds = trainMaterial.getNext()) != null) {
 
+                // decode the image and back propagate
                 decodeImageToInputLayer(ds.getImage());
                 backwardProp(ds.getSolution());
 
                 minibatch_size++;
+                // apply the training after 10 images
                 if(minibatch_size == 10) {
                     applyTrainging(minibatch_size);
                     minibatch_size = 0;
                 }
             }
+            // if we had less than 10 images left
             if(minibatch_size != 0){
                 applyTrainging(minibatch_size);
                 minibatch_size = 0;
             }
             double stop = System.nanoTime();
 
+            // run the test data to estimate the performance
             readSolution(epochs,time,stop);
 
             trainMaterial.reset();
 
         }
     }
+    // Runs the test data through the network and prints the performance.
     private void readSolution(int epoch , double start, double stop){
         Dataset ds;
         int c = 0;
         int w = 0;
 
         double error = 0;
+
+        // load the images one by one
         while ((ds = testMaterial.getNext()) != null){
             decodeImageToInputLayer(ds.getImage());
             forwardProp();
 
             int pick = 0;
-            double brightest = Double.MIN_VALUE;
+            double strongest = Double.MIN_VALUE;
+
+            // get the result by finding the perceptron with the highest output in the output layer
             Perceptron[] perceptrons = layers[layers.length-1].getPerceptrons();
             for(int i = 0 ; i< perceptrons.length; i++ ){
-                if(perceptrons[i].getOutput() > brightest){
+                if(perceptrons[i].getOutput() > strongest){
                     pick = i;
-                    brightest = perceptrons[i].getOutput();
+                    strongest = perceptrons[i].getOutput();
                 }
             }
             if(pick == ds.getSolution()){
@@ -139,18 +159,22 @@ public class Neural_Network {
 
 
     }
+
+    // calculates the mean cost of a layer's perceptrons
+    // pick is the correct number shown in the image
     private double getCost(int pick,Perceptron[] perceptrons){
-        double error = 0;
+        double cost = 0;
         for(int i = 0 ; i< perceptrons.length;i++){
             if(i == pick){
-                error+= ((perceptrons[i].getOutput()-1.0)*(perceptrons[i].getOutput()-1.0));
+                cost+= ((perceptrons[i].getOutput()-1.0)*(perceptrons[i].getOutput()-1.0));
             }else{
-                error+= ((perceptrons[i].getOutput()-0.0)*(perceptrons[i].getOutput()-0.0));
+                cost+= ((perceptrons[i].getOutput()-0.0)*(perceptrons[i].getOutput()-0.0));
             }
         }
-        error = error/(numberOfOutputs);
-        return error;
+        cost = cost/(numberOfOutputs);
+        return cost;
     }
+    // decodes an image to it's brightness value, then the value downsamples to a value between 0.0 to 1.0
     private void decodeImageToInputLayer(BufferedImage im){
         Perceptron[] perceptrons = layers[0].getPerceptrons();
         for(int y =0 ; y<picW;y++){
@@ -161,6 +185,7 @@ public class Neural_Network {
             }
         }
     }
+    // Forward propagation through the neural network
     private void forwardProp(){
         for(int i = 1; i<layers.length;i++){
             Perceptron[] prev = layers[i-1].getPerceptrons();
@@ -169,6 +194,7 @@ public class Neural_Network {
             }
         }
     }
+    // Performs forward propagation and then backward propagation through the NN
     private void backwardProp(int solutionIndex){
 
         forwardProp();
@@ -177,12 +203,13 @@ public class Neural_Network {
         resetError();
 
     }
+    // Make all calculations for the output layer
     private void calculateOutputLayer(int solution){
         Perceptron[] lminusOne = layers[layers.length-2].getPerceptrons();
         Perceptron[] l = layers[layers.length-1].getPerceptrons();
 
 
-        //calculate solution
+        //calculate the solution array
         double[] y = new double[l.length];
         for(int i = 0 ; i<y.length;i++){
             if(i == solution)
@@ -192,19 +219,20 @@ public class Neural_Network {
         }
 
         for(int j = 0 ; j< l.length;j++){
-
-            //calculate gradient w and bias
+            // calculate error
             double error =  2*(l[j].getOutput() - y[j]) * l[j].getActivationFunction().getDerivative(l[j].getZ());
+            //calculate gradient weight and bias
             for (int k = 0; k < lminusOne.length; k++) {
                 gradientWeights.get(layers.length - 2)[j][k] = lminusOne[k].getOutput() * error;
             }
             gradientBias.get(gradientBias.size() - 1)[j] += error;
+            // stores the error for this layer
             gradientError.get(gradientError.size()-1)[j] = error;
 
         }
 
     }
-
+    // Calculations for the hidden layers in back propagation
     private void calculateRemaingingHiddenLayers(){
         for(int l = layers.length-2; l>0;l--) {
             Perceptron[] cl = layers[l].getPerceptrons();
@@ -212,11 +240,11 @@ public class Neural_Network {
             Perceptron[] lminusOne = layers[l-1].getPerceptrons();
 
             for (int j = 0; j < cl.length; j++) {
-
+                // calculate the error on the perceptron regarding every perceptron in the next layer.
                 for (int k = 0; k < lplusOne.length; k++) {
                     gradientError.get(l)[j]+= weights.get(l)[k][j] * gradientError.get(l+1)[k] *cl[j].getActivationFunction().getDerivative(cl[j].getZ());
                 }
-                //calculate gradient w and bias
+                //calculate gradient weight and bias
                 for (int k = 0; k < lminusOne.length; k++) {
                     gradientWeights.get(l-1)[j][k] += lminusOne[k].getOutput() * gradientError.get(l)[j];
                 }
@@ -225,7 +253,7 @@ public class Neural_Network {
             }
         }
     }
-
+    // Applies the training on both the weights and biases depending on the learning_rate/minibatch_size
     private void applyTrainging(double minibatch_size){
 
         for(int start = 0 ; start < weights.size(); start++){
@@ -246,6 +274,7 @@ public class Neural_Network {
             }
         }
     }
+    // resets the gradientError
     private void resetError(){
         for(double[] doubles : gradientError){
             for(int i = 0 ; i< doubles.length;i++){
@@ -254,9 +283,12 @@ public class Neural_Network {
         }
     }
 
+    /* create and initialize the training data and test data
+       initialize all layers and the weight matrix.
+       The perceptrons are initialized using the sigmoid activation function */
     private void init(){
 
-        trainMaterial = new ReadImage(serachPath);
+        trainMaterial = new ReadImage(searchPath);
         testMaterial = new ReadImage(testPath);
 
 
@@ -298,6 +330,8 @@ public class Neural_Network {
             createWeightMatrix(layers[i+1].getPerceptrons().length,layers[i].getPerceptrons().length,gradientWeights,true);
         }
     }
+
+    // Creates a weight matrix that either is empty or has randomized values between -1.0 to 1.0
     private void createWeightMatrix(int x,int y,ArrayList<Double[][]> addto ,boolean onlyZeros){
         Double[][] tmp = new Double[x][y];
         for(int i = 0; i< x ; i++){
@@ -310,7 +344,7 @@ public class Neural_Network {
         }
         addto.add(tmp);
     }
-
+    //used for debugging
     private void printMatrix(){
         for(Layer layer : layers){
             for(Perceptron perceptron : layer.getPerceptrons()){
@@ -320,6 +354,7 @@ public class Neural_Network {
         }
         System.out.println();
     }
+    //used for debugging
     private void printBias(){
         for(double[] doubles : gradientBias){
             for(double d : doubles){
@@ -329,6 +364,7 @@ public class Neural_Network {
         }
         System.out.println();
     }
+    //used for debugging
     private void printWheights(ArrayList<Double[][]> in){
         int i = 0;
         for(Double[][] doubles : in){
@@ -344,9 +380,11 @@ public class Neural_Network {
         }
         System.out.println();
     }
+    // Save the NN to disk
     private void saveNetwork(String name){
         Tools.SaveAndLoadNetwork.save(layers,weights,name);
     }
+    // Load a selected NN
     private void loadNetwork(String networkName){
         Tools.SaveAndLoadNetwork.NetworkHolder networkHolder = Tools.SaveAndLoadNetwork.load(networkName);
         layers = networkHolder.getLayer();

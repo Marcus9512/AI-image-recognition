@@ -21,6 +21,7 @@ public class NeuralNetGraphics extends JPanel {
 
     /**
      * This class manages the graphical user interface.
+     * Run this main to use the GUI to load and test a NN
      */
 
     Dimension dimension;
@@ -64,13 +65,16 @@ public class NeuralNetGraphics extends JPanel {
         }
     }
     // Loads the image and checks the image size. if it is bigger then 28x28 multipleNumbers is called otherwise neural_network.
-    // The resukt is the drawn to the screen,
+    // The result is then drawn to the screen,
     public void loadImage(File file){
         try {
+            //read image and draw to screen
             System.out.println(file.getPath());
             bufferedImage = ImageIO.read(file);
             draw();
+            //Is the image larger than 28x28
             if(bufferedImage.getHeight() > Neural_Network.picH || bufferedImage.getWidth() > Neural_Network.picW){
+                //analyze the image with multipleimage and print the result
                 ArrayList<Holder> results = multipleNumbers.analyzeImage(bufferedImage,nn);
                 drawResults(results);
                 StringBuilder printMe = new StringBuilder();
@@ -79,6 +83,7 @@ public class NeuralNetGraphics extends JPanel {
                 }
                 textArea.setText("Network answer: " + printMe);
             }else {
+                //analyze a single image via the neural network and draw the result
                 Holder res = nn.runNetwork(bufferedImage);
                 if(res.getSol() != 10) {
                     textArea.setText("Network answer: " + res.getSol() + " cost: " + res.getHowClose());
@@ -91,7 +96,8 @@ public class NeuralNetGraphics extends JPanel {
         }
     }
 
-
+    //Opens a JFileChooser and asks the user for a neural network, the selected network
+    //is loaded in to the class
     public String loadNN(JFrame jFrame, NeuralNetGraphics ng){
         File folder = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath()+"/SavedNetworks");
        // File folder = new File("SavedNetworks");
@@ -106,6 +112,7 @@ public class NeuralNetGraphics extends JPanel {
         }
         return null;
     }
+    //The main method initialize all necessary components for the GUI
     public static void main(String[] args) {
 
         JFrame jFrame = new JFrame("Neural-Network");
@@ -129,6 +136,9 @@ public class NeuralNetGraphics extends JPanel {
         buttonPanel.setLayout(null);
         buttonPanel.add(button);
         buttonPanel.setLocation(0,500);
+
+        //If the searchbutton is pressed then open a JFileChooser and ask for a image
+        //the image is then passed to loadImage
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

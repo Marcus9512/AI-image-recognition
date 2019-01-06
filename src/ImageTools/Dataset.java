@@ -3,6 +3,12 @@ package ImageTools;
 import java.awt.image.BufferedImage;
 
 public class Dataset {
+    /**
+     * This is a container of information that is passed between NN and ReadImage
+     * image contains the image
+     * solution contains an int which represents the solution or "label" to the image
+     * search contains the search path for the image
+     */
     private BufferedImage image;
     private int solution;
     private String search;

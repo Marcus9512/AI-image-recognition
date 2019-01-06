@@ -6,14 +6,16 @@ import java.io.Serializable;
 
 public class Perceptron implements Serializable {
 
+    /**
+     * This class represents a perceptron in the NN
+     */
     private ActivationFunction activationFuntion;
     private int id; // id should always start at 0
     private double bias = 0;
-    private double threshold = 0;
     private double output = 0;
     private double z = 0;
 
-
+    //calculates the z and output value using the input, it´s used in forward propagation
     public void calculateInput(Double[][] input,Perceptron[] prev){
         double sum = 0;
         for(int i = 0 ; i<input[id].length;i++){
@@ -39,13 +41,6 @@ public class Perceptron implements Serializable {
         this.bias = bias;
     }
 
-    public double getThreshold() {
-        return threshold;
-    }
-
-    public void setThreshold(double threshold) {
-        this.threshold = threshold;
-    }
 
     public double getOutput() {
         return output;
