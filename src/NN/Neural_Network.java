@@ -1,3 +1,11 @@
+/**
+ * This is core of the neural network. This class also contains a main() to train the network
+ * Uses supervised learning and sigmoid as activation function
+ *
+ * @author Marcus Jonsson Ewerbring @ Jonas Johansson
+ * @verion 1.0
+ * @since 2019-01-03
+ */
 package NN;
 
 import ActivationFunctions.ActivationFunction;
@@ -12,11 +20,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Neural_Network {
-
-    /**
-     * This is core of the neural network. This class also contains a main() to train the network
-     * Uses supervised learning and sigmoid as activation function
-     */
 
     //final ActivationFunction relu = new ReLu();
     final ActivationFunction sigmoid = new Sigmoid();
@@ -52,6 +55,54 @@ public class Neural_Network {
             loadNetwork(path);
         }
 
+    }
+
+    /* create and initialize the training data and test data
+       initialize all layers and the weight matrix.
+       The perceptrons are initialized using the sigmoid activation function */
+    private void init(){
+
+        trainMaterial = new ReadImage(searchPath);
+        testMaterial = new ReadImage(testPath);
+
+
+        int hiddenSize = 30 ;
+        layers = new Layer[numberOfHiddenLayers+2];
+
+        System.out.println("number of outputs: "+ numberOfOutputs);
+        System.out.println("number of hidden layers: "+ numberOfHiddenLayers);
+        System.out.println("hiddensize: "+ hiddenSize);
+        System.out.println("number of epochs: "+ maxEpochs);
+
+
+        layers[0] = new Layer(0,picH*picW, sigmoid);
+        for(int i = 1; i<layers.length-1;i++){
+            layers[i] = new Layer(i,hiddenSize, sigmoid);
+        }
+        layers[layers.length-1] = new Layer(layers.length-1,numberOfOutputs, sigmoid);
+
+        for(Layer layer : layers){
+            layer.randomizePerceptron();
+        }
+
+        gradientBias.add(0,new double[picH*picW]);
+        for(int i = 1; i<layers.length-1;i++){
+            gradientBias.add(i,new double[hiddenSize]);
+        }
+        gradientBias.add(layers.length-1,new double[numberOfOutputs]);
+
+        gradientError.add(0,new double[picH*picW]);
+        for(int i = 1; i<layers.length-1;i++){
+            gradientError.add(i,new double[hiddenSize]);
+        }
+        gradientError.add(layers.length-1,new double[numberOfOutputs]);
+
+
+        for(int i = 0 ; i< layers.length-1;i++){
+            //create weight matrix between each layer
+            createWeightMatrix(layers[i+1].getPerceptrons().length,layers[i].getPerceptrons().length,weights,false);
+            createWeightMatrix(layers[i+1].getPerceptrons().length,layers[i].getPerceptrons().length,gradientWeights,true);
+        }
     }
 
     public void trainNetwork(){
@@ -280,54 +331,6 @@ public class Neural_Network {
             for(int i = 0 ; i< doubles.length;i++){
                 doubles[i] = 0;
             }
-        }
-    }
-
-    /* create and initialize the training data and test data
-       initialize all layers and the weight matrix.
-       The perceptrons are initialized using the sigmoid activation function */
-    private void init(){
-
-        trainMaterial = new ReadImage(searchPath);
-        testMaterial = new ReadImage(testPath);
-
-
-        int hiddenSize = 30 ;
-        layers = new Layer[numberOfHiddenLayers+2];
-
-        System.out.println("number of outputs: "+ numberOfOutputs);
-        System.out.println("number of hidden layers: "+ numberOfHiddenLayers);
-        System.out.println("hiddensize: "+ hiddenSize);
-        System.out.println("number of epochs: "+ maxEpochs);
-
-
-        layers[0] = new Layer(0,picH*picW, sigmoid);
-        for(int i = 1; i<layers.length-1;i++){
-            layers[i] = new Layer(i,hiddenSize, sigmoid);
-        }
-        layers[layers.length-1] = new Layer(layers.length-1,numberOfOutputs, sigmoid);
-
-        for(Layer layer : layers){
-            layer.randomizePerceptron();
-        }
-
-        gradientBias.add(0,new double[picH*picW]);
-        for(int i = 1; i<layers.length-1;i++){
-            gradientBias.add(i,new double[hiddenSize]);
-        }
-        gradientBias.add(layers.length-1,new double[numberOfOutputs]);
-
-        gradientError.add(0,new double[picH*picW]);
-        for(int i = 1; i<layers.length-1;i++){
-            gradientError.add(i,new double[hiddenSize]);
-        }
-        gradientError.add(layers.length-1,new double[numberOfOutputs]);
-
-
-        for(int i = 0 ; i< layers.length-1;i++){
-            //create weight matrix between each layer
-            createWeightMatrix(layers[i+1].getPerceptrons().length,layers[i].getPerceptrons().length,weights,false);
-            createWeightMatrix(layers[i+1].getPerceptrons().length,layers[i].getPerceptrons().length,gradientWeights,true);
         }
     }
 

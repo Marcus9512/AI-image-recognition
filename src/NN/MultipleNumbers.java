@@ -1,3 +1,11 @@
+/**
+ * This class is used for detecting several numbers within an image.
+ *
+ * @author Marcus Jonsson Ewerbring @ Jonas Johansson
+ * @verion 1.0
+ * @since 2019-01-03
+ */
+
 package NN;
 
 import Tools.Holder;
@@ -7,10 +15,6 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class MultipleNumbers {
-
-    /**
-     * This class is used for detecting several numbers within an image.
-     */
 
     Holder[] images ;
 

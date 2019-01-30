@@ -1,14 +1,17 @@
+/**
+ * This is a container of information that is passed between NeuralNetGrapghics, Neural_Network and MultipleNumbers
+ * x is the leftmost coordinate for the found image
+ * y is the uppermost coordinate for the found image
+ * sol is the solution from the NN
+ * per is the cost value
+ *
+ * @author Marcus Jonsson Ewerbring @ Jonas Johansson
+ * @verion 1.0
+ * @since 2019-01-03
+ */
 package Tools;
 
 public class Holder implements Comparable<Holder> {
-
-    /**
-     * This is a container of information that is passed between NeuralNetGrapghics, Neural_Network and MultipleNumbers
-     * x is the leftmost coordinate for the found image
-     * y is the uppermost coordinate for the found image
-     * sol is the solution from the NN
-     * per is the cost value
-     */
 
     int x;
     int y;

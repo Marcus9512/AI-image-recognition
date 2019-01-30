@@ -1,14 +1,19 @@
+/**
+ * This is a container of information that is passed between NN and ReadImage
+ * image contains the image
+ * solution contains an int which represents the solution or "label" to the image
+ * search contains the search path for the image
+ *
+ * @author Marcus Jonsson Ewerbring @ Jonas Johansson
+ * @verion 1.0
+ * @since 2019-01-03
+ */
 package ImageTools;
 
 import java.awt.image.BufferedImage;
 
 public class Dataset {
-    /**
-     * This is a container of information that is passed between NN and ReadImage
-     * image contains the image
-     * solution contains an int which represents the solution or "label" to the image
-     * search contains the search path for the image
-     */
+
     private BufferedImage image;
     private int solution;
     private String search;

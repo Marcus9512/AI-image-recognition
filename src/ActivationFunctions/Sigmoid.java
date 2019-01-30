@@ -1,12 +1,15 @@
+/**
+ *
+ * Implementation of the Sigmoid activation function
+ *
+ * @author Marcus Jonsson Ewerbring @ Jonas Johansson
+ * @verion 1.0
+ * @since 2019-01-03
+ */
+
 package ActivationFunctions;
 
 public class Sigmoid implements ActivationFunction{
-
-    /**
-     *
-     * Implementation of the Sigmoid activation function
-     *
-     */
 
     @Override
     public double calculateActivation(double x) {

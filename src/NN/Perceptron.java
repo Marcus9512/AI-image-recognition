@@ -1,3 +1,10 @@
+/**
+ * This class represents a perceptron in the NN
+ *
+ * @author Marcus Jonsson Ewerbring @ Jonas Johansson
+ * @verion 1.0
+ * @since 2019-01-03
+ */
 package NN;
 
 import ActivationFunctions.ActivationFunction;
@@ -6,9 +13,6 @@ import java.io.Serializable;
 
 public class Perceptron implements Serializable {
 
-    /**
-     * This class represents a perceptron in the NN
-     */
     private ActivationFunction activationFuntion;
     private int id; // id should always start at 0
     private double bias = 0;

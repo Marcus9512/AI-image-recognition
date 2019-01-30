@@ -1,5 +1,12 @@
+/**
+ * This class manages the graphical user interface.
+ * Run this main to use the GUI to load and test a NN
+ *
+ * @author Marcus Jonsson Ewerbring @ Jonas Johansson
+ * @verion 1.0
+ * @since 2019-01-03
+ */
 package Graphics;
-
 
 import NN.MultipleNumbers;
 import NN.Neural_Network;
@@ -18,11 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class NeuralNetGraphics extends JPanel {
-
-    /**
-     * This class manages the graphical user interface.
-     * Run this main to use the GUI to load and test a NN
-     */
 
     Dimension dimension;
     BufferedImage bufferedImage;

@@ -1,3 +1,11 @@
+/**
+ * This class provides data structures for the layers in the neural network
+ *
+ * @author Marcus Jonsson Ewerbring @ Jonas Johansson
+ * @verion 1.0
+ * @since 2019-01-03
+ */
+
 package NN;
 
 import ActivationFunctions.ActivationFunction;
@@ -6,10 +14,6 @@ import Tools.MyMath;
 import java.io.Serializable;
 
 public class Layer implements Serializable {
-
-    /**
-     *  This class provides data structures for the layers in the neural network
-     */
 
     private Perceptron[] perceptrons;
     private int id;

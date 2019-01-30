@@ -1,3 +1,14 @@
+/**
+ *  This class reads all images in a directory with subdirectories.
+ *  The images is then returned as data sets in randomized order via getNext().
+ *
+ *  When there are no files left to read, null is returned.
+ *  The method reset() shuffles imagePathlist and resets the file pointer to the beginning of the list.
+ *
+ *  @author Marcus Jonsson Ewerbring @ Jonas Johansson
+ *  @verion 1.0
+ *  @since 2019-01-03
+ */
 package ImageTools;
 
 import javax.imageio.ImageIO;
@@ -12,13 +23,6 @@ import java.util.Collections;
 
 public class ReadImage {
 
-    /**
-     *  This class reads all images in a directory with subdirectories.
-     *  The images is then returned as data sets in randomized order via getNext().
-     *
-     *  When there are no files left to read, null is returned.
-     *  The method reset() shuffles imagePathlist and resets the file pointer to the beginning of the list.
-     */
     private ArrayList<Dataholder> imagePathList = new ArrayList<>();
     private int currentImage = 0;
 

@@ -1,3 +1,11 @@
+/**
+ * save() Saves a NN as a NetworkHolder to a file on disk.
+ * load() reads and returns a NetworkHolder from disk.
+ *
+ * @author Marcus Jonsson Ewerbring @ Jonas Johansson
+ * @verion 1.0
+ * @since 2019-01-03
+ */
 package Tools;
 
 import NN.Layer;
@@ -7,11 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SaveAndLoadNetwork  {
-
-    /**
-     * save() Saves a NN as a NetworkHolder to a file on disk.
-     * load() reads and returns a NetworkHolder from disk.
-     */
 
     private static final String dir = "res/SavedNetworks/";
     //private static final String dir = "SavedNetworks/";
